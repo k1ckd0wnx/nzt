@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Spawner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="container" class="hidden">
+        <div class="header">
+            <h1>Vehicle Spawner</h1>
+            <button id="closeBtn" class="close-btn">&times;</button>
+        </div>
+        
+        <div class="content">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search vehicles..." class="search-input">
+            </div>
+            
+            <div class="controls">
+                <button id="deleteVehicleBtn" class="control-btn delete-btn">Delete Current Vehicle</button>
+            </div>
+            
+            <div class="categories" id="categoriesContainer">
+                <!-- Categories will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
