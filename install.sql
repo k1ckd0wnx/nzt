@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS `casino_users` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `citizenid` VARCHAR(50) NOT NULL UNIQUE,
     `username` VARCHAR(50) NOT NULL UNIQUE,
-    `email` VARCHAR(100) NOT NULL UNIQUE,
     `password_hash` VARCHAR(255) NOT NULL,
     `balance` DECIMAL(15,2) DEFAULT 0.00,
     `total_deposited` DECIMAL(15,2) DEFAULT 0.00,

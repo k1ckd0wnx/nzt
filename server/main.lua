@@ -102,6 +102,29 @@ CreateThread(function()
         print("^3[Casino] Database tables not found. Please run install.sql to set up the database.^0")
     else
         print("^2[Casino] Database connection established successfully.^0")
+        
+        -- Auto-migration: Remove email column if it exists (backwards compatibility)
+        local emailColExists = MySQL.query.await([[
+            SELECT COUNT(*) as count
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'casino_users' 
+            AND COLUMN_NAME = 'email'
+        ]])
+        
+        if emailColExists and emailColExists[1] and emailColExists[1].count > 0 then
+            print("^3[Casino] Removing deprecated email column from casino_users table...^0")
+            local success, err = pcall(function()
+                MySQL.query.await('ALTER TABLE casino_users DROP COLUMN email')
+            end)
+            
+            if success then
+                print("^2[Casino] Email column removed successfully (migration complete).^0")
+            else
+                print("^1[Casino] Failed to remove email column: " .. tostring(err) .. "^0")
+                print("^3[Casino] Please manually run: ALTER TABLE casino_users DROP COLUMN email^0")
+            end
+        end
     end
     
     -- Clean up expired sessions every 5 minutes
