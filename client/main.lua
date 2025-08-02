@@ -93,12 +93,12 @@ RegisterNUICallback("appLoaded", function(data, cb)
 end)
 
 RegisterNUICallback("register", function(data, cb)
-    if not data.username or not data.email or not data.password then
+    if not data.username or not data.password then
         cb({ success = false, message = "Missing required fields" })
         return
     end
     
-    TriggerServerEvent(Utils.Events.REGISTER, data.username, data.email, data.password)
+    TriggerServerEvent(Utils.Events.REGISTER, data.username, data.password)
     cb({ success = true })
 end)
 

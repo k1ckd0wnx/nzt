@@ -19,53 +19,30 @@ CreateThread(function()
     -- Additional wait to ensure fd_laptop is fully loaded
     Wait(2000)
 
-    -- Try different icon paths - fd_laptop might be picky about icon paths
-    local resourceName = GetCurrentResourceName()
-    local iconPaths = {
-        "dice.svg",
-        "assets/icon.svg",
-        ("nui://%s/dice.svg"):format(resourceName),
-        ("nui://%s/assets/icon.svg"):format(resourceName),
-        ("https://cfx-nui-%s/dice.svg"):format(resourceName),
-        ("https://cfx-nui-%s/assets/icon.svg"):format(resourceName),
-        "",  -- Try no icon (some fd_laptop versions don't like broken icons)
-        nil  -- Try nil icon
-    }
-    
-    local success, result = false, nil
-    for i, iconPath in ipairs(iconPaths) do
-        success, result = pcall(function()
-            print(("^3[Casino] Trying icon path %d: %s^0"):format(i, iconPath))
-            return exports.fd_laptop:addCustomApp({
-                id = "casino",
-                name = "Premium Casino",
-                isDefaultApp = true,
-                needsUpdate = false,
-                icon = iconPath,
-                ui = ("https://cfx-nui-%s/web/dist/index.html"):format(GetCurrentResourceName()),
-                keepAlive = true,
-                ignoreInternalLoading = true,
-                windowActions = {
-                    isResizable = false,
-                    isMaximizable = false,
-                    isClosable = true,
-                    isMinimizable = true,
-                    isDraggable = false
-                },
-                windowDefaultStates = {
-                    isMaximized = true,
-                    isMinimized = false
-                },
-            })
-        end)
-        
-        if success and result then
-            print(("^2[Casino] Icon loaded successfully with path: %s^0"):format(iconPath))
-            break
-        else
-            print(("^1[Casino] Icon path %d failed: %s^0"):format(i, result or "unknown error"))
-        end
-    end
+    -- Start with a simple approach - no icon to avoid issues
+    local success, result = pcall(function()
+        print("^3[Casino] Registering app with no icon to avoid compatibility issues^0")
+        return exports.fd_laptop:addCustomApp({
+            id = "casino",
+            name = "Premium Casino",
+            isDefaultApp = true,
+            needsUpdate = false,
+            ui = ("https://cfx-nui-%s/web/dist/index.html"):format(GetCurrentResourceName()),
+            keepAlive = true,
+            ignoreInternalLoading = true,
+            windowActions = {
+                isResizable = false,
+                isMaximizable = false,
+                isClosable = true,
+                isMinimizable = true,
+                isDraggable = false
+            },
+            windowDefaultStates = {
+                isMaximized = true,
+                isMinimized = false
+            },
+        })
+    end)
 
     if success and result then
         print("^2[Casino] Successfully registered with fd_laptop^0")
@@ -198,13 +175,14 @@ local function hashPassword(password)
     return hash
 end
 
-local function createUser(citizenid, username, email, password)
+local function createUser(citizenid, username, password)
     local passwordHash = hashPassword(password)
     
-    local result = MySQL.insert.await('INSERT INTO casino_users (citizenid, username, email, password_hash) VALUES (?, ?, ?, ?)', {
+    print("^3[Casino] Creating user: " .. username .. " with hash: " .. passwordHash .. "^0")
+    
+    local result = MySQL.insert.await('INSERT INTO casino_users (citizenid, username, password_hash) VALUES (?, ?, ?)', {
         citizenid,
         username,
-        email,
         passwordHash
     })
     
@@ -214,13 +192,18 @@ end
 local function authenticateUser(username, password)
     local passwordHash = hashPassword(password)
     
+    print("^3[Casino] Login attempt - Username: " .. username .. " with hash: " .. passwordHash .. "^0")
+    
     local result = MySQL.query.await('SELECT * FROM casino_users WHERE username = ? AND password_hash = ? AND is_active = TRUE', {
         username,
         passwordHash
     })
     
     if result and #result > 0 then
+        print("^2[Casino] Login successful for user: " .. username .. "^0")
         return result[1]
+    else
+        print("^1[Casino] Login failed for user: " .. username .. " - no matching record found^0")
     end
     
     return nil
@@ -389,7 +372,7 @@ RegisterNetEvent("casino:initializeApp", function()
     openApp(source)
 end)
 
-RegisterNetEvent(Utils.Events.REGISTER, function(username, email, password)
+RegisterNetEvent(Utils.Events.REGISTER, function(username, password)
     local source = source
     
     if isRateLimited(source, "register") then
@@ -404,16 +387,10 @@ RegisterNetEvent(Utils.Events.REGISTER, function(username, email, password)
     
     -- Validate inputs
     local validUsername, usernameMsg = Utils.validateUsername(username)
-    local validEmail, emailMsg = Utils.validateEmail(email)
     local validPassword, passwordMsg = Utils.validatePassword(password)
     
     if not validUsername then
         TriggerClientEvent('QBCore:Notify', source, usernameMsg, 'error')
-        return
-    end
-    
-    if not validEmail then
-        TriggerClientEvent('QBCore:Notify', source, emailMsg, 'error')
         return
     end
     
@@ -437,7 +414,7 @@ RegisterNetEvent(Utils.Events.REGISTER, function(username, email, password)
     end
     
     -- Create user
-    local success = createUser(citizenid, username, email, password)
+    local success = createUser(citizenid, username, password)
     if success then
         logAction(source, "user_registered", "auth", "info", "New user registered", { 
             citizenid = citizenid, 

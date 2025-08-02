@@ -16,7 +16,7 @@ import {
   Divider
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { IconAt, IconLock, IconUser, IconAlertCircle, IconDice } from '@tabler/icons-react'
+import { IconLock, IconUser, IconAlertCircle, IconDice } from '@tabler/icons-react'
 import { useAppStore } from '@/store/useAppStore'
 import { motion } from 'framer-motion'
 
@@ -27,7 +27,6 @@ interface LoginForm {
 
 interface RegisterForm {
   username: string
-  email: string
   password: string
   confirmPassword: string
 }
@@ -51,7 +50,6 @@ export function AuthPage() {
   const registerForm = useForm<RegisterForm>({
     initialValues: {
       username: '',
-      email: '',
       password: '',
       confirmPassword: '',
     },
@@ -63,11 +61,7 @@ export function AuthPage() {
         if (!/^[a-zA-Z0-9_]+$/.test(value)) return 'Username can only contain letters, numbers, and underscores'
         return null
       },
-      email: (value) => {
-        if (!value) return 'Email is required'
-        if (!/^\S+@\S+$/.test(value)) return 'Invalid email'
-        return null
-      },
+
       password: (value) => {
         if (!value) return 'Password is required'
         if (value.length < 6) return 'Password must be at least 6 characters'
@@ -231,13 +225,6 @@ export function AuthPage() {
                     {...registerForm.getInputProps('username')}
                   />
 
-                  <TextInput
-                    label="Email"
-                    placeholder="Enter your email"
-                    leftSection={<IconAt size={16} />}
-                    required
-                    {...registerForm.getInputProps('email')}
-                  />
 
                   <PasswordInput
                     label="Password"
