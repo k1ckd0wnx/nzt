@@ -57,9 +57,9 @@ export function BankingPage() {
     initialValues: { amount: 100 },
     validate: {
       amount: (value) => {
-        if (!value || value <= 0) return 'Amount must be greater than 0'
-        if (value > (user?.balance || 0)) return 'Insufficient balance'
-        if (value > 50000) return 'Maximum withdrawal is $50,000'
+        if (!value || value <= 0) return t('banking.invalid_amount')
+        if (value > (user?.balance || 0)) return t('banking.insufficient_casino_balance')
+        if (value > 50000) return t('banking.amount_too_high')
         return null
       },
     },
@@ -103,20 +103,20 @@ export function BankingPage() {
   const features = [
     {
       icon: <IconShieldCheck size={24} />,
-      title: 'Secure Transactions',
-      description: 'All transactions are encrypted and secure',
+      title: t('lobby.secure_transactions'),
+      description: t('lobby.secure_desc'),
       color: 'green',
     },
     {
       icon: <IconClock size={24} />,
-      title: 'Instant Processing',
-      description: 'Deposits and withdrawals process instantly',
+      title: t('lobby.instant_processing'),
+      description: t('lobby.instant_desc'),
       color: 'blue',
     },
     {
       icon: <IconBuildingBank size={24} />,
-      title: 'Bank Integration',
-      description: 'Direct connection to your bank account',
+      title: t('lobby.bank_integration'),
+      description: t('lobby.bank_desc'),
       color: 'teal',
     },
   ]

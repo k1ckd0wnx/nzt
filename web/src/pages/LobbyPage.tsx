@@ -58,8 +58,8 @@ export function LobbyPage() {
   const gameCards: GameCard[] = [
     {
       id: 'slots',
-      name: 'Slot Machines',
-      description: '5 unique themed slots with jackpots',
+      name: t('lobby.slot_machines'),
+      description: t('lobby.slot_description'),
       icon: <IconDeviceGamepad size={32} />,
       minBet: config?.minBets.slots || 20,
       color: 'blue',
@@ -68,8 +68,8 @@ export function LobbyPage() {
     },
     {
       id: 'plinko',
-      name: 'Plinko',
-      description: 'Drop balls and watch them bounce',
+      name: t('nav.plinko'),
+      description: t('lobby.plinko_description'),
       icon: <IconCircle size={32} />,
       minBet: config?.minBets.plinko || 10,
       color: 'blue',
@@ -77,8 +77,8 @@ export function LobbyPage() {
     },
     {
       id: 'mines',
-      name: 'Mines',
-      description: 'Reveal tiles and avoid the mines',
+      name: t('nav.mines'),
+      description: t('lobby.mines_description'),
       icon: <IconBomb size={32} />,
       minBet: config?.minBets.mines || 10,
       color: 'blue',
@@ -87,8 +87,8 @@ export function LobbyPage() {
     },
     {
       id: 'aviator',
-      name: 'Aviator',
-      description: 'Cash out before the plane crashes',
+      name: t('nav.aviator'),
+      description: t('lobby.aviator_description'),
       icon: <IconTrendingUp size={32} />,
       minBet: config?.minBets.aviator || 10,
       color: 'blue',
@@ -99,19 +99,19 @@ export function LobbyPage() {
 
   const userStats = [
     {
-      label: 'Total Wagered',
+      label: t('lobby.total_wagered'),
       value: formatCurrency(user?.totalWagered || 0),
       icon: <IconCoins size={20} />,
       color: 'blue',
     },
     {
-      label: 'Total Won',
+      label: t('lobby.total_won'),
       value: formatCurrency(user?.totalWon || 0),
       icon: <IconTrophy size={20} />,
       color: 'blue',
     },
     {
-      label: 'Win Rate',
+      label: t('lobby.win_rate'),
       value: user?.totalWagered && user?.totalWagered > 0 
         ? `${((user.totalWon || 0) / user.totalWagered * 100).toFixed(1)}%`
         : '0%',
@@ -119,7 +119,7 @@ export function LobbyPage() {
       color: 'blue',
     },
     {
-      label: 'Level',
+      label: t('lobby.level'),
       value: Math.floor((user?.totalWagered || 0) / 1000) + 1,
       icon: <IconStar size={20} />,
       color: 'blue',
@@ -217,12 +217,12 @@ export function LobbyPage() {
                         <Stack gap="xs">
                           {game.isPopular && (
                             <Badge color="yellow" variant="filled" size="sm">
-                              Popular
+                              {t('lobby.popular')}
                             </Badge>
                           )}
                           {game.isNew && (
                             <Badge color="green" variant="filled" size="sm">
-                              New
+                              {t('lobby.new')}
                             </Badge>
                           )}
                         </Stack>

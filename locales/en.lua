@@ -20,7 +20,8 @@ Locale['ui'] = {
     ['previous'] = 'Previous',
     ['submit'] = 'Submit',
     ['reset'] = 'Reset',
-    ['clear'] = 'Clear'
+    ['clear'] = 'Clear',
+    ['settings'] = 'Settings'
 }
 
 -- Authentication
@@ -62,7 +63,54 @@ Locale['nav'] = {
     ['aviator'] = 'Aviator',
     ['banking'] = 'Banking',
     ['transactions'] = 'History',
-    ['balance'] = 'Balance'
+    ['balance'] = 'Balance',
+    ['account'] = 'Account',
+    ['profile'] = 'Profile'
+}
+
+-- Lobby
+Locale['lobby'] = {
+    ['welcome_title'] = 'Welcome to Premium Casino',
+    ['welcome_subtitle'] = 'Choose your game and start winning!',
+    ['featured_games'] = 'Featured Games',
+    ['your_stats'] = 'Your Stats',
+    ['slot_machines'] = 'Slot Machines',
+    ['slot_description'] = '5 unique themed slots with jackpots',
+    ['plinko_description'] = 'Drop balls and watch them bounce',
+    ['mines_description'] = 'Reveal tiles and avoid the mines',
+    ['aviator_description'] = 'Cash out before the plane crashes',
+    ['total_wagered'] = 'Total Wagered',
+    ['total_won'] = 'Total Won',
+    ['win_rate'] = 'Win Rate',
+    ['level'] = 'Level',
+    ['popular'] = 'Popular',
+    ['new'] = 'New',
+    ['secure_transactions'] = 'Secure Transactions',
+    ['secure_desc'] = 'All transactions are encrypted and secure',
+    ['instant_processing'] = 'Instant Processing',
+    ['instant_desc'] = 'Deposits and withdrawals processed instantly',
+    ['bank_integration'] = 'Bank Integration',
+    ['bank_desc'] = 'Direct integration with your bank account'
+}
+
+-- Transactions
+Locale['transactions'] = {
+    ['title'] = 'Transaction History',
+    ['subtitle'] = 'View all your casino transactions',
+    ['type'] = 'Type',
+    ['amount'] = 'Amount',
+    ['date'] = 'Date',
+    ['status'] = 'Status',
+    ['game'] = 'Game',
+    ['deposit'] = 'Deposit',
+    ['withdrawal'] = 'Withdrawal',
+    ['bet'] = 'Bet',
+    ['win'] = 'Win',
+    ['completed'] = 'Completed',
+    ['pending'] = 'Pending',
+    ['failed'] = 'Failed',
+    ['no_transactions'] = 'No transactions found',
+    ['loading'] = 'Loading transactions...'
 }
 
 -- Games
