@@ -24,7 +24,26 @@ local function handleUIUpdate(data)
         data = data
     }
     print("^3[Casino] Sending to NUI: " .. json.encode(message) .. "^0")
+    
+    -- Try multiple message formats to ensure fd_laptop compatibility
     SendNUIMessage(message)
+    
+    -- Also try fd_laptop compatible format
+    local fdMessage = {
+        action = "casino_updateUI",
+        data = data
+    }
+    print("^3[Casino] Also sending fd_laptop format: " .. json.encode(fdMessage) .. "^0")
+    SendNUIMessage(fdMessage)
+    
+    -- Try direct window message format
+    local windowMessage = {
+        source = "casino",
+        action = data.action,
+        payload = data
+    }
+    print("^3[Casino] Also sending window format: " .. json.encode(windowMessage) .. "^0")
+    SendNUIMessage(windowMessage)
     
     -- Store important data for when app reopens
     if data.action == "login_success" then

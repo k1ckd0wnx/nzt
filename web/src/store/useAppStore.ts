@@ -352,12 +352,60 @@ if (typeof window !== 'undefined') {
         }
         break
         
+      case 'casino_updateUI':
+        console.log('✅ FD_LAPTOP FORMAT DETECTED!')
+        console.log('Processing casino update:', JSON.stringify(data, null, 2))
+        
+        if (data.action === 'initializeApp') {
+          console.log('✅ PROCESSING INITIALIZEAPP FROM FD_LAPTOP FORMAT:', data)
+          useAppStore.getState().initialize({
+            config: data.config,
+            user: data.user,
+            events: data.events
+          })
+        } else if (data.action === 'login_success') {
+          console.log('✅ PROCESSING LOGIN_SUCCESS FROM FD_LAPTOP FORMAT:', data)
+          useAppStore.getState().handleUIUpdate(data)
+        } else {
+          console.log('✅ PROCESSING OTHER ACTION FROM FD_LAPTOP FORMAT:', data.action)
+          useAppStore.getState().handleUIUpdate(data)
+        }
+        break
+        
       case 'closeApp':
         // Handle app close if needed
         break
         
       default:
         console.log('Unknown NUI message type:', type, 'Full message:', event.data)
+        
+        // Check if this is a direct message with casino data
+        if (messageData.source === 'casino' && messageData.action && messageData.payload) {
+          console.log('✅ WINDOW MESSAGE FORMAT DETECTED!')
+          console.log('Processing casino payload:', JSON.stringify(messageData.payload, null, 2))
+          
+          if (messageData.action === 'initializeApp') {
+            console.log('✅ PROCESSING INITIALIZEAPP FROM WINDOW FORMAT:', messageData.payload)
+            useAppStore.getState().initialize({
+              config: messageData.payload.config,
+              user: messageData.payload.user,
+              events: messageData.payload.events
+            })
+          } else if (messageData.action === 'login_success') {
+            console.log('✅ PROCESSING LOGIN_SUCCESS FROM WINDOW FORMAT:', messageData.payload)
+            useAppStore.getState().handleUIUpdate(messageData.payload)
+          } else {
+            console.log('✅ PROCESSING OTHER ACTION FROM WINDOW FORMAT:', messageData.action)
+            useAppStore.getState().handleUIUpdate(messageData.payload)
+          }
+        }
+        
+        // Also check if this is a direct action message (like fd_laptop sends)
+        if (messageData.action && !messageData.type && messageData.action.startsWith('initializeApp')) {
+          console.log('✅ DIRECT ACTION MESSAGE DETECTED!')
+          console.log('Processing direct action:', JSON.stringify(messageData, null, 2))
+          useAppStore.getState().handleUIUpdate(messageData)
+        }
     }
   })
   
