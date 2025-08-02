@@ -109,6 +109,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     
     switch (update.action) {
       case 'initialize_app':
+      case 'initializeApp':
         console.log('Initializing app with server config:', update.config)
         set({ 
           config: update.config,
@@ -123,7 +124,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
           user: update.user,
           currentPage: 'lobby',
           error: null,
-          isLoading: false  // Clear loading state
+          isLoading: false,  // Clear loading state
+          isInitialized: true  // Ensure app is marked as initialized on login
         })
         showNotification({
           title: 'Welcome!',
@@ -271,11 +273,8 @@ if (typeof window !== 'undefined') {
             user: data.user,
             events: data.events
           })
-        } else if (data.action === 'login_success') {
-          console.log('Processing login_success directly:', data)
-          useAppStore.getState().handleUIUpdate(data)
         } else {
-          console.log('Processing other action:', data.action)
+          console.log('Processing action:', data.action)
           useAppStore.getState().handleUIUpdate(data)
         }
         break
