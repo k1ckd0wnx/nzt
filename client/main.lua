@@ -40,12 +40,6 @@ end
 -- Register for Utils.Events.UPDATE_UI
 RegisterNetEvent(Utils.Events.UPDATE_UI, handleUIUpdate)
 
--- Register for direct event as fallback
-RegisterNetEvent("casino:updateUI", function(data)
-    print("^3[Casino] Direct casino:updateUI received^0")
-    handleUIUpdate(data)
-end)
-
 -- Functions
 function openCasinoApp()
     if isAppOpen then return end

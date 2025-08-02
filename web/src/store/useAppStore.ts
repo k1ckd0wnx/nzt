@@ -262,12 +262,20 @@ if (typeof window !== 'undefined') {
         break
         
       case 'updateUI':
-        console.log('Updating UI with data:', data)
+        console.log('Updating UI with data:', JSON.stringify(data, null, 2))
         // Handle special initializeApp action within updateUI
         if (data.action === 'initializeApp') {
-          console.log('Processing initializeApp from updateUI:', data.data)
-          useAppStore.getState().initialize(data.data)
+          console.log('Processing initializeApp from updateUI:', data)
+          useAppStore.getState().initialize({
+            config: data.config,
+            user: data.user,
+            events: data.events
+          })
+        } else if (data.action === 'login_success') {
+          console.log('Processing login_success directly:', data)
+          useAppStore.getState().handleUIUpdate(data)
         } else {
+          console.log('Processing other action:', data.action)
           useAppStore.getState().handleUIUpdate(data)
         }
         break

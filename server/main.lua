@@ -383,7 +383,9 @@ function openApp(source)
     -- Send as initializeApp type (React listens for this)
     TriggerClientEvent(Utils.Events.UPDATE_UI, source, {
         action = "initializeApp",
-        data = initData
+        config = initData.config,
+        user = initData.user,
+        events = initData.events
     })
     
     -- Check if user exists and send appropriate data
@@ -497,9 +499,8 @@ RegisterNetEvent(Utils.Events.LOGIN, function(username, password)
     })
     
     print("^2[Casino] Sending login_success to client: " .. source .. "^0")
-    print("^3[Casino] Utils.Events.UPDATE_UI = " .. tostring(Utils.Events.UPDATE_UI) .. "^0")
     
-    -- Send using both the Utils event name and direct event name as fallback
+    -- Send only one event to avoid duplicates
     TriggerClientEvent(Utils.Events.UPDATE_UI, source, { 
         action = "login_success",
         user = {
@@ -510,18 +511,7 @@ RegisterNetEvent(Utils.Events.LOGIN, function(username, password)
         }
     })
     
-    -- Fallback direct event
-    TriggerClientEvent("casino:updateUI", source, { 
-        action = "login_success",
-        user = {
-            id = user.id,
-            username = user.username,
-            balance = user.balance,
-            sessionToken = sessionToken
-        }
-    })
-    
-    print("^2[Casino] login_success events sent^0")
+    print("^2[Casino] login_success event sent^0")
 end)
 
 RegisterNetEvent(Utils.Events.DEPOSIT, function(amount, sessionToken)
