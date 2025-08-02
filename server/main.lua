@@ -469,6 +469,12 @@ RegisterNetEvent(Utils.Events.LOGIN, function(username, password)
     if not user then
         logAction(source, "login_failed", "auth", "warning", "Failed login attempt", { username = username })
         TriggerClientEvent('QBCore:Notify', source, 'Invalid username or password!', 'error')
+        
+        -- Send login failure to UI
+        TriggerClientEvent(Utils.Events.UPDATE_UI, source, { 
+            action = "login_failed",
+            message = "Invalid username or password"
+        })
         return
     end
     

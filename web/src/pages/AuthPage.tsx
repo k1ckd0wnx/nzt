@@ -78,10 +78,14 @@ export function AuthPage() {
   const handleLogin = async (values: LoginForm) => {
     setIsLoading(true)
     try {
+      console.log('Sending login request...', values)
       await sendNUIMessage('login', values)
+      console.log('Login request sent, waiting for server response...')
+      
+      // Keep loading until server responds with login_success or login_failed
+      // The loading state will be cleared by the server response handler
     } catch (error) {
       console.error('Login error:', error)
-    } finally {
       setIsLoading(false)
     }
   }

@@ -118,15 +118,30 @@ export const useAppStore = create<AppStore>((set, get) => ({
         break
         
       case 'login_success':
+        console.log('Login successful, updating store...', update.user)
         set({ 
           user: update.user,
           currentPage: 'lobby',
-          error: null 
+          error: null,
+          isLoading: false  // Clear loading state
         })
         showNotification({
           title: 'Welcome!',
           message: `Logged in as ${update.user.username}`,
           color: 'green',
+        })
+        break
+        
+      case 'login_failed':
+        console.log('Login failed:', update.message)
+        set({ 
+          error: update.message,
+          isLoading: false  // Clear loading state
+        })
+        showNotification({
+          title: 'Login Failed',
+          message: update.message || 'Invalid username or password',
+          color: 'red',
         })
         break
         

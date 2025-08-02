@@ -108,8 +108,11 @@ RegisterNUICallback("login", function(data, cb)
         return
     end
     
+    print("^3[Casino] Client sending login request to server^0")
     TriggerServerEvent(Utils.Events.LOGIN, data.username, data.password)
-    cb({ success = true })
+    
+    -- Don't respond immediately - let server response handle success/failure
+    cb({ success = true, message = "Logging in..." })
 end)
 
 RegisterNUICallback("logout", function(data, cb)
