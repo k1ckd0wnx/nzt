@@ -36,7 +36,7 @@ interface Peg {
   radius: number
 }
 
-const MULTIPLIERS = [1000, 130, 26, 9, 4, 2, 2, 4, 9, 26, 130, 1000]
+const MULTIPLIERS = [100, 26, 9, 4, 2, 1.5, 1, 0.5, 0.2, 0.5, 1, 1.5, 2, 4, 9, 26, 100]
 const ROWS = 16
 const PEG_RADIUS = 4
 const BALL_RADIUS = 6

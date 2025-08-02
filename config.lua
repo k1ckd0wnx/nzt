@@ -10,13 +10,52 @@ Config.BankingScript = "RxBanking" -- Change this to switch banking scripts
 Config.BankingExports = {
     RxBanking = {
         getBalance = function(source)
-            return exports["RxBanking"]:GetPlayerBalance(source)
+            -- Get player identifier for RxBanking
+            local player = QBCore.Functions.GetPlayer(source)
+            if not player then return 0 end
+            
+            local account = exports['RxBanking']:GetPlayerPersonalAccount(player.PlayerData.citizenid)
+            if not account or not account.balance then return 0 end
+            
+            return tonumber(account.balance) or 0
         end,
         removeMoney = function(source, amount)
-            return exports["RxBanking"]:RemovePlayerMoney(source, amount)
+            -- Remove money from player's personal account
+            local player = QBCore.Functions.GetPlayer(source)
+            if not player then return false end
+            
+            local account = exports['RxBanking']:GetPlayerPersonalAccount(player.PlayerData.citizenid)
+            if not account or not account.iban then return false end
+            
+            -- Remove money from the account
+            local success = exports['RxBanking']:RemoveAccountMoney(
+                account.iban, 
+                amount, 
+                'casino', 
+                'Casino withdrawal', 
+                nil -- No target iban for casino
+            )
+            
+            return success
         end,
         addMoney = function(source, amount)
-            return exports["RxBanking"]:AddPlayerMoney(source, amount)
+            -- Add money to player's personal account
+            local player = QBCore.Functions.GetPlayer(source)
+            if not player then return false end
+            
+            local account = exports['RxBanking']:GetPlayerPersonalAccount(player.PlayerData.citizenid)
+            if not account or not account.iban then return false end
+            
+            -- Add money to the account
+            local success = exports['RxBanking']:AddAccountMoney(
+                account.iban, 
+                amount, 
+                'casino', 
+                'Casino deposit', 
+                nil -- No source iban for casino
+            )
+            
+            return success
         end
     },
     -- Add more banking scripts here as needed
@@ -205,7 +244,22 @@ Config.SlotMachines = {
 -- Plinko Configuration
 Config.Plinko = {
     rows = 16,
-    multipliers = {0.2, 0.5, 1.0, 1.5, 2.0, 5.0, 10.0, 50.0, 100.0, 50.0, 10.0, 5.0, 2.0, 1.5, 1.0, 0.5, 0.2},
+    -- More balanced multipliers - harder to win big
+    multipliers = {100, 26, 9, 4, 2, 1.5, 1, 0.5, 0.2, 0.5, 1, 1.5, 2, 4, 9, 26, 100},
+    -- Bet-dependent multiplier scaling
+    betScaling = {
+        -- Higher bets get lower effective multipliers
+        lowBet = 100,    -- Bets under $100 get full multipliers
+        midBet = 500,    -- Bets $100-500 get 75% multipliers  
+        highBet = 1000,  -- Bets $500-1000 get 50% multipliers
+        maxBet = 5000,   -- Bets over $1000 get 25% multipliers
+        scalingFactors = {
+            low = 1.0,     -- 100% multipliers for small bets
+            mid = 0.75,    -- 75% multipliers for medium bets
+            high = 0.5,    -- 50% multipliers for high bets
+            max = 0.25     -- 25% multipliers for max bets
+        }
+    },
     physics = {
         gravity = 0.5,
         bounce = 0.3,

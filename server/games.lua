@@ -122,15 +122,39 @@ function GameEngine.Plinko.simulateDrop(betAmount)
     local config = Config.Plinko
     local rtp = Config.RTP.plinko
     
-    -- Simulate ball physics
-    local position = math.floor(config.rows / 2) -- Start in middle
+    -- Determine bet scaling factor based on bet amount
+    local scalingFactor = 1.0
+    if betAmount >= config.betScaling.maxBet then
+        scalingFactor = config.betScaling.scalingFactors.max
+    elseif betAmount >= config.betScaling.highBet then
+        scalingFactor = config.betScaling.scalingFactors.high
+    elseif betAmount >= config.betScaling.midBet then
+        scalingFactor = config.betScaling.scalingFactors.mid
+    else
+        scalingFactor = config.betScaling.scalingFactors.low
+    end
     
+    -- More realistic Plinko physics simulation
+    local position = math.floor(#config.multipliers / 2) -- Start in middle
+    
+    -- Simulate ball bouncing through pegs (more realistic)
     for row = 1, config.rows do
-        local direction = Utils.generateSecureRandom() > 0.5 and 1 or -1
-        position = position + direction
+        -- Natural tendency to move toward center (gravity effect)
+        local centerPull = (#config.multipliers / 2) - position
+        local gravityInfluence = centerPull * 0.1 -- Weak center pull
         
-        -- Apply some randomness and gravity
-        if Utils.generateSecureRandom() > 0.7 then
+        -- Random bounce direction with slight center bias
+        local randomBounce = Utils.generateSecureRandom() - 0.5 + gravityInfluence
+        
+        if randomBounce > 0.1 then
+            position = position + 1
+        elseif randomBounce < -0.1 then
+            position = position - 1
+        end
+        -- else stay in same position (rare)
+        
+        -- Apply additional randomness for realism
+        if Utils.generateSecureRandom() > 0.85 then
             position = position + (Utils.generateSecureRandom() > 0.5 and 1 or -1)
         end
         
@@ -138,34 +162,77 @@ function GameEngine.Plinko.simulateDrop(betAmount)
         position = math.max(1, math.min(#config.multipliers, position))
     end
     
-    local multiplier = config.multipliers[position]
-    local payout = betAmount * multiplier
+    local baseMultiplier = config.multipliers[position]
     
-    -- Apply RTP adjustment
-    local winProbability = Utils.calculateWinProbability(rtp, betAmount, payout)
-    local randomChance = Utils.generateSecureRandom()
+    -- Apply bet scaling to reduce multipliers for higher bets
+    local effectiveMultiplier = baseMultiplier * scalingFactor
     
-    if randomChance > winProbability and multiplier > 1.0 then
-        -- Force lower multiplier to maintain RTP
-        local safeMultipliers = {}
-        for i, mult in ipairs(config.multipliers) do
-            if mult <= 1.0 then
-                table.insert(safeMultipliers, {index = i, mult = mult})
+    -- Additional house edge - make big wins much rarer
+    local houseEdgeCheck = Utils.generateSecureRandom()
+    
+    -- If trying to win big (10x+ multiplier), apply harsh house edge
+    if effectiveMultiplier >= 10 then
+        -- Only 2% chance to actually get the big multiplier
+        if houseEdgeCheck > 0.02 then
+            -- Force to a losing or break-even position
+            local badPositions = {}
+            for i, mult in ipairs(config.multipliers) do
+                if mult <= 1.0 then
+                    table.insert(badPositions, {index = i, mult = mult * scalingFactor})
+                end
+            end
+            
+            if #badPositions > 0 then
+                local randomBad = badPositions[Utils.generateSecureRandom(1, #badPositions)]
+                position = randomBad.index
+                effectiveMultiplier = randomBad.mult
             end
         end
-        
-        if #safeMultipliers > 0 then
-            local randomSafe = safeMultipliers[Utils.generateSecureRandom(1, #safeMultipliers)]
-            position = randomSafe.index
-            multiplier = randomSafe.mult
-            payout = betAmount * multiplier
+    elseif effectiveMultiplier >= 4 then
+        -- Medium wins (4x-9x) have 15% chance
+        if houseEdgeCheck > 0.15 then
+            -- Force to lower multiplier
+            local lowerPositions = {}
+            for i, mult in ipairs(config.multipliers) do
+                if mult <= 2.0 then
+                    table.insert(lowerPositions, {index = i, mult = mult * scalingFactor})
+                end
+            end
+            
+            if #lowerPositions > 0 then
+                local randomLower = lowerPositions[Utils.generateSecureRandom(1, #lowerPositions)]
+                position = randomLower.index
+                effectiveMultiplier = randomLower.mult
+            end
+        end
+    elseif effectiveMultiplier >= 2 then
+        -- Small wins (2x-3x) have 35% chance
+        if houseEdgeCheck > 0.35 then
+            -- Force to break-even or loss
+            local breakEvenPositions = {}
+            for i, mult in ipairs(config.multipliers) do
+                if mult <= 1.5 then
+                    table.insert(breakEvenPositions, {index = i, mult = mult * scalingFactor})
+                end
+            end
+            
+            if #breakEvenPositions > 0 then
+                local randomBreakEven = breakEvenPositions[Utils.generateSecureRandom(1, #breakEvenPositions)]
+                position = randomBreakEven.index
+                effectiveMultiplier = randomBreakEven.mult
+            end
         end
     end
     
+    -- Final payout calculation
+    local payout = betAmount * effectiveMultiplier
+    
     return {
         finalPosition = position,
-        multiplier = multiplier,
+        multiplier = effectiveMultiplier,
         payout = payout,
+        baseMultiplier = baseMultiplier,
+        scalingFactor = scalingFactor,
         path = {} -- Could store the full path for animation
     }
 end

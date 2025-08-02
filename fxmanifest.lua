@@ -33,7 +33,8 @@ files {
 
 dependencies {
     'oxmysql',
-    'fd_laptop'
+    'fd_laptop',
+    'RxBanking'
 }
 
 exports {
