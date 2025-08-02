@@ -41,10 +41,10 @@ function App() {
           console.log('App initialization error:', error)
         }
         
-        // Emergency fallback - force initialization only if no server response after 1 second
+        // Emergency fallback - force initialization only if no server response after 3 seconds
         setTimeout(() => {
           if (!useAppStore.getState().isInitialized) {
-            console.log('Emergency initialization - forcing app to load quickly...')
+            console.log('Emergency initialization - forcing app to load after 3 second timeout...')
             useAppStore.getState().initialize({
               config: {
                 casinoName: "Premium Casino",
@@ -55,8 +55,10 @@ function App() {
               user: null,
               events: {}
             })
+          } else {
+            console.log('Emergency fallback not needed - app already initialized')
           }
-        }, 1000)
+        }, 3000)
       }
     
     // Small delay to ensure context is ready

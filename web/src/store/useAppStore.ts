@@ -284,23 +284,42 @@ export const useAppStore = create<AppStore>((set, get) => ({
 if (typeof window !== 'undefined') {
   window.addEventListener('message', (event) => {
     console.log('Raw NUI message received:', event.data)
+    console.log('Event data type:', typeof event.data)
+    console.log('Event data string:', JSON.stringify(event.data))
     
     // Send debug info to client
     sendNUIMessage('debugMessage', {
       type: 'messageReceived',
       eventData: event.data,
+      eventDataType: typeof event.data,
+      eventDataString: JSON.stringify(event.data),
       timestamp: Date.now()
     })
     
-    if (!event.data || typeof event.data !== 'object') {
-      console.log('Invalid NUI message format:', event.data)
+    // Handle different data formats
+    let messageData = event.data
+    
+    // If data is a string, try to parse it
+    if (typeof event.data === 'string') {
+      try {
+        messageData = JSON.parse(event.data)
+        console.log('Parsed string data:', messageData)
+      } catch (e) {
+        console.log('Failed to parse string data:', e)
+        return
+      }
+    }
+    
+    if (!messageData || typeof messageData !== 'object') {
+      console.log('Invalid NUI message format:', messageData)
       return
     }
     
-    const { type, data } = event.data
+    const { type, data } = messageData
     
     if (!type) {
-      console.log('Missing type in NUI message:', event.data)
+      console.log('Missing type in NUI message:', messageData)
+      console.log('Available properties:', Object.keys(messageData))
       return
     }
     
@@ -312,17 +331,23 @@ if (typeof window !== 'undefined') {
         break
         
       case 'updateUI':
+        console.log('✅ UPDATEUI CASE TRIGGERED!')
         console.log('Updating UI with data:', JSON.stringify(data, null, 2))
+        console.log('Data action:', data?.action)
+        
         // Handle special initializeApp action within updateUI
         if (data.action === 'initializeApp') {
-          console.log('Processing initializeApp from updateUI:', data)
+          console.log('✅ PROCESSING INITIALIZEAPP FROM UPDATEUI:', data)
           useAppStore.getState().initialize({
             config: data.config,
             user: data.user,
             events: data.events
           })
+        } else if (data.action === 'login_success') {
+          console.log('✅ PROCESSING LOGIN_SUCCESS FROM UPDATEUI:', data)
+          useAppStore.getState().handleUIUpdate(data)
         } else {
-          console.log('Processing action:', data.action)
+          console.log('✅ PROCESSING OTHER ACTION:', data.action)
           useAppStore.getState().handleUIUpdate(data)
         }
         break
