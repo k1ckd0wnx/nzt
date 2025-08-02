@@ -3,8 +3,8 @@
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
--- Server state
-local CasinoServer = {
+-- Server state (global so games.lua can access it)
+CasinoServer = {
     activeSessions = {},
     rateLimits = {},
     lastCleanup = 0
@@ -19,10 +19,11 @@ CreateThread(function()
     -- Additional wait to ensure fd_laptop is fully loaded
     Wait(2000)
 
-    -- Start with a simple approach - no icon to avoid issues
+    -- Try to register with fd_laptop with detailed error handling
     local success, result = pcall(function()
-        print("^3[Casino] Registering app with no icon to avoid compatibility issues^0")
-        return exports.fd_laptop:addCustomApp({
+        print("^3[Casino] Registering app with fd_laptop^0")
+        
+        local appData = {
             id = "casino",
             name = "Premium Casino",
             isDefaultApp = true,
@@ -40,8 +41,17 @@ CreateThread(function()
             windowDefaultStates = {
                 isMaximized = true,
                 isMinimized = false
-            },
-        })
+            }
+        }
+        
+        print("^3[Casino] App data prepared, calling addCustomApp^0")
+        local added, errorMessage = exports.fd_laptop:addCustomApp(appData)
+        
+        if not added then
+            error("fd_laptop registration failed: " .. tostring(errorMessage))
+        end
+        
+        return added
     end)
 
     if success and result then
