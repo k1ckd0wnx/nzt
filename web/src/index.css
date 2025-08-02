@@ -10,6 +10,9 @@
 html, body, #root {
   height: 100%;
   overflow: hidden;
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 body {
@@ -21,6 +24,11 @@ body {
   will-change: auto;
   transform: translateZ(0);
   backface-visibility: hidden;
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
 }
 
 /* Optimized scrollbar */
@@ -221,70 +229,74 @@ body {
   will-change: opacity;
 }
 
-/* Fast page transitions */
+/* Ultra-fast GPU-accelerated transitions */
 @keyframes slideInFromRight {
-  from { 
-    transform: translateX(100%) translateZ(0); 
+  0% { 
+    transform: translate3d(100%, 0, 0); 
     opacity: 0; 
   }
-  to { 
-    transform: translateX(0) translateZ(0); 
+  100% { 
+    transform: translate3d(0, 0, 0); 
     opacity: 1; 
   }
 }
 
 @keyframes slideInFromLeft {
-  from { 
-    transform: translateX(-100%) translateZ(0); 
+  0% { 
+    transform: translate3d(-100%, 0, 0); 
     opacity: 0; 
   }
-  to { 
-    transform: translateX(0) translateZ(0); 
+  100% { 
+    transform: translate3d(0, 0, 0); 
     opacity: 1; 
   }
 }
 
 @keyframes fadeInUp {
-  from { 
-    transform: translateY(20px) translateZ(0); 
+  0% { 
+    transform: translate3d(0, 15px, 0); 
     opacity: 0; 
   }
-  to { 
-    transform: translateY(0) translateZ(0); 
+  100% { 
+    transform: translate3d(0, 0, 0); 
     opacity: 1; 
   }
 }
 
 @keyframes scaleIn {
-  from { 
-    transform: scale(0.9) translateZ(0); 
+  0% { 
+    transform: scale3d(0.95, 0.95, 1); 
     opacity: 0; 
   }
-  to { 
-    transform: scale(1) translateZ(0); 
+  100% { 
+    transform: scale3d(1, 1, 1); 
     opacity: 1; 
   }
 }
 
-/* Animation classes */
+/* Optimized animation classes */
 .slide-in-right {
-  animation: slideInFromRight 0.3s ease-out;
+  animation: slideInFromRight 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
 }
 
 .slide-in-left {
-  animation: slideInFromLeft 0.3s ease-out;
+  animation: slideInFromLeft 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
 }
 
 .fade-in-up {
-  animation: fadeInUp 0.25s ease-out;
+  animation: fadeInUp 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
 }
 
 .scale-in {
-  animation: scaleIn 0.2s ease-out;
+  animation: scaleIn 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform, opacity;
+  transform: scale3d(1, 1, 1);
 }
 
 /* Number counter animation */

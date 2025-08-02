@@ -16,44 +16,31 @@ end)
 
 -- Function to handle UI updates
 local function handleUIUpdate(data)
-    print("^3[Casino] UPDATE_UI received with action: " .. (data.action or "no action") .. "^0")
-    print("^3[Casino] Full data received: " .. json.encode(data) .. "^0")
+    -- Minimal logging for production performance
     
-    -- Always send to NUI - React app will handle appropriately
-    local message = {
+    -- Send in multiple formats for fd_laptop compatibility
+    SendNUIMessage({
         type = "updateUI",
         data = data
-    }
-    print("^3[Casino] Sending to NUI: " .. json.encode(message) .. "^0")
+    })
     
-    -- Try multiple message formats to ensure fd_laptop compatibility
-    SendNUIMessage(message)
-    
-    -- Also try fd_laptop compatible format
-    local fdMessage = {
+    SendNUIMessage({
         action = "casino_updateUI",
         data = data
-    }
-    print("^3[Casino] Also sending fd_laptop format: " .. json.encode(fdMessage) .. "^0")
-    SendNUIMessage(fdMessage)
+    })
     
-    -- Try direct window message format
-    local windowMessage = {
+    SendNUIMessage({
         source = "casino",
         action = data.action,
         payload = data
-    }
-    print("^3[Casino] Also sending window format: " .. json.encode(windowMessage) .. "^0")
-    SendNUIMessage(windowMessage)
+    })
     
     -- Store important data for when app reopens
     if data.action == "login_success" then
         nuiData.user = data.user
-        print("^2[Casino] Stored user data for " .. data.user.username .. "^0")
         
         -- Respond to pending login callback with direct user data
         if pendingLoginCallback then
-            print("^3[Casino] Responding to pending login callback with user data^0")
             pendingLoginCallback({
                 success = true,
                 action = "directLogin",
@@ -69,7 +56,6 @@ local function handleUIUpdate(data)
     elseif data.action == "initialize_app" or data.action == "initializeApp" then
         -- Force app to be marked as open when initialization happens
         isAppOpen = true
-        print("^2[Casino] App marked as open due to initialization^0")
     end
 end
 
@@ -126,21 +112,13 @@ RegisterNUICallback("closeApp", function(data, cb)
     cb("ok")
 end)
 
--- Initialize when app is accessed through fd_laptop
+-- Initialize when app is accessed through fd_laptop (optimized)
 RegisterNUICallback("appLoaded", function(data, cb)
-    print("^2[Casino] App loaded callback received from React^0")
     TriggerServerEvent("casino:initializeApp")
     
     -- Send initialization data directly in the callback response
     local player = QBCore.Functions.GetPlayer(GetPlayerServerId(PlayerId()))
     if player then
-        local citizenid = player.PlayerData.citizenid
-        
-        -- Get user data if exists
-        local hasUser = nuiData.user ~= nil
-        local userData = nuiData.user
-        
-        print("^3[Casino] Sending initialization data in callback response^0")
         cb({
             success = true,
             action = "directInit",
@@ -150,8 +128,8 @@ RegisterNUICallback("appLoaded", function(data, cb)
                 maxBets = { slots = 10000, plinko = 5000, mines = 5000, aviator = 50000 },
                 slotMachines = Config and Config.SlotMachines or {}
             },
-            user = userData,
-            hasStoredUser = hasUser
+            user = nuiData.user,
+            hasStoredUser = nuiData.user ~= nil
         })
     else
         cb("ok")
@@ -164,22 +142,17 @@ RegisterNUICallback("debugMessage", function(data, cb)
 end)
 
 RegisterNUICallback("pollForData", function(data, cb)
-    print("^3[Casino] React polling for data: " .. json.encode(data) .. "^0")
-    
     -- Force trigger server to send fresh data
     TriggerServerEvent("casino:initializeApp")
     
-    -- Also send any stored user data directly
+    -- Send stored user data if available
     if nuiData.user then
-        print("^3[Casino] Sending stored user data to React^0")
-        
-        -- Try to send user data in a format that might work
         local userData = {
             action = "login_success",
             user = nuiData.user
         }
         
-        -- Use the same multi-format approach
+        -- Use multi-format approach (reduced logging for performance)
         SendNUIMessage({type = "updateUI", data = userData})
         SendNUIMessage({action = "casino_updateUI", data = userData})
         SendNUIMessage({source = "casino", action = "login_success", payload = userData})

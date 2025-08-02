@@ -94,16 +94,12 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
   
   initialize: (data) => {
-    console.log('Initializing app...', { hasConfig: !!data.config, hasUser: !!data.user })
-    
     set({
       config: data.config,
       user: data.user,
       isInitialized: true,
       currentPage: data.user ? 'lobby' : 'auth',
     })
-    
-    console.log('App initialized successfully')
   },
   
   setTransactions: (transactions) => set({ transactions }),
@@ -256,8 +252,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 // NUI Event Listener Setup
 if (typeof window !== 'undefined') {
   window.addEventListener('message', (event) => {
-    // Reduced debugging for better performance
-    console.log('NUI message:', event.data?.action || event.data?.type || 'unknown')
+    // Minimal logging for production performance
     
     // Handle different data formats
     let messageData = event.data

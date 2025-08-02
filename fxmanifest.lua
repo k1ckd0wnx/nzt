@@ -26,6 +26,7 @@ server_scripts {
 files {
     'web/dist/**/*',
     'web/dist/assets/**/*',
+    'casino-icon.svg',
     'dice.svg',
     'assets/**/*'
 }

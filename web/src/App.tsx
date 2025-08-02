@@ -58,10 +58,9 @@ function App() {
           console.log('App initialization error:', error)
         }
         
-        // Emergency fallback - force initialization only if no server response after 3 seconds
+        // Quick fallback - force initialization if no server response after 1 second
         setTimeout(() => {
           if (!useAppStore.getState().isInitialized) {
-            console.log('Emergency initialization - forcing app to load after 3 second timeout...')
             useAppStore.getState().initialize({
               config: {
                 casinoName: "Premium Casino",
@@ -72,20 +71,17 @@ function App() {
               user: null,
               events: {}
             })
-          } else {
-            console.log('Emergency fallback not needed - app already initialized')
           }
-        }, 3000)
+        }, 1000)
       }
     
     // Small delay to ensure context is ready
     setTimeout(initializeApp, 1000)
     
-    // WORKAROUND: Since fd_laptop blocks SendNUIMessage, poll for data directly
+    // Quick polling for data (reduced frequency for better performance)
     const pollForData = () => {
       const { isInitialized, user } = useAppStore.getState()
       if (!isInitialized || !user) {
-        console.log('Polling server for fresh data...')
         sendNUIMessage('pollForData', { 
           timestamp: Date.now(),
           needsInit: !isInitialized,
@@ -94,39 +90,23 @@ function App() {
       }
     }
     
-    // Poll every 2 seconds for the first 30 seconds
-    const pollInterval = setInterval(pollForData, 2000)
+    // Poll every 1 second for the first 10 seconds only
+    const pollInterval = setInterval(pollForData, 1000)
     setTimeout(() => {
       clearInterval(pollInterval)
-      console.log('Polling stopped')
-    }, 30000)
+    }, 10000)
     
   }, [])
 
-  // Show loading screen until initialized
+  // Show minimal loading screen
   if (!isInitialized) {
     return (
       <div className="casino-app">
         <Center h="100vh">
           <div style={{ textAlign: 'center' }}>
-            <Loader size="xl" color="blue" />
-            <Text mt="md" size="lg" c="white">
-              Loading Casino...
-            </Text>
-            <Text mt="sm" size="sm" c="gray">
-              Debug: isInitialized = {isInitialized.toString()}
-            </Text>
-            <Text mt="sm" size="sm" c="gray">
-              Config: {config ? `Present (${config.casinoName})` : 'Missing'}
-            </Text>
-            <Text mt="sm" size="sm" c="gray">
-              User: {user ? `Present (${user.username})` : 'Missing'}
-            </Text>
-            <Text mt="sm" size="sm" c="gray">
-              Current Page: {useAppStore.getState().currentPage}
-            </Text>
-            <Text mt="sm" size="sm" c="yellow">
-              Check F8 console for debug messages
+            <Loader size="lg" color="blue" />
+            <Text mt="md" size="md" c="white" fw={500}>
+              Loading...
             </Text>
           </div>
         </Center>
@@ -194,12 +174,17 @@ function App() {
           <AnimatePresence mode="wait">
             <motion.div
               key={currentPage}
-              initial={{ opacity: 0, x: 15 }}
+              initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -15 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-              style={{ height: '100%', overflow: 'auto' }}
-              className="scale-in"
+              exit={{ opacity: 0, x: -8 }}
+              transition={{ duration: 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
+              style={{ 
+                height: '100%', 
+                overflow: 'auto',
+                transform: 'translate3d(0, 0, 0)',
+                willChange: 'transform, opacity'
+              }}
+              className="fade-in-up"
             >
               <Suspense fallback={<PageLoader />}>
                 <CurrentPageComponent />

@@ -21,15 +21,16 @@ CreateThread(function()
 
     -- Try to register with fd_laptop - try multiple icon paths if needed
     local resourceName = GetCurrentResourceName()
-             -- Try simple icon approaches first, then file paths
-         local iconPaths = {
-             "🎲",  -- Unicode dice emoji
-             "🎰",  -- Slot machine emoji  
-             ("nui://%s/dice.svg"):format(resourceName),
-             ("nui://%s/assets/icon.svg"):format(resourceName),
-             "dice.svg",
-             "assets/icon.svg",
-         }
+                     -- Try optimized icon paths - SVG first, then fallbacks
+        local iconPaths = {
+            ("nui://%s/casino-icon.svg"):format(resourceName),
+            ("nui://%s/dice.svg"):format(resourceName),
+            ("nui://%s/assets/icon.svg"):format(resourceName),
+            "casino-icon.svg",
+            "dice.svg",
+            "🎰",  -- Slot machine emoji fallback
+            "🎲",  -- Dice emoji fallback
+        }
     
     local success, result = false, nil
     
