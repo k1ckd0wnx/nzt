@@ -19,40 +19,60 @@ CreateThread(function()
     -- Additional wait to ensure fd_laptop is fully loaded
     Wait(2000)
 
-    -- Try to register with fd_laptop with detailed error handling
-    local success, result = pcall(function()
-        print("^3[Casino] Registering app with fd_laptop^0")
-        
-        local appData = {
-            id = "casino",
-            name = "Premium Casino",
-            isDefaultApp = true,
-            needsUpdate = false,
-            ui = ("https://cfx-nui-%s/web/dist/index.html"):format(GetCurrentResourceName()),
-            keepAlive = true,
-            ignoreInternalLoading = true,
-            windowActions = {
-                isResizable = false,
-                isMaximizable = false,
-                isClosable = true,
-                isMinimizable = true,
-                isDraggable = false
-            },
-            windowDefaultStates = {
-                isMaximized = true,
-                isMinimized = false
+    -- Try to register with fd_laptop - try multiple icon paths if needed
+    local resourceName = GetCurrentResourceName()
+    local iconPaths = {
+        ("nui://%s/dice.svg"):format(resourceName),
+        ("nui://%s/assets/icon.svg"):format(resourceName),
+        "dice.svg",
+        "assets/icon.svg",
+        ("https://cfx-nui-%s/dice.svg"):format(resourceName),
+    }
+    
+    local success, result = false, nil
+    
+    for i, iconPath in ipairs(iconPaths) do
+        success, result = pcall(function()
+            print(("^3[Casino] Trying to register with icon path %d: %s^0"):format(i, iconPath))
+            
+            local appData = {
+                id = "casino",
+                name = "Premium Casino",
+                isDefaultApp = true,
+                needsUpdate = false,
+                icon = iconPath,
+                ui = ("https://cfx-nui-%s/web/dist/index.html"):format(resourceName),
+                keepAlive = true,
+                ignoreInternalLoading = true,
+                windowActions = {
+                    isResizable = false,
+                    isMaximizable = false,
+                    isClosable = true,
+                    isMinimizable = true,
+                    isDraggable = false
+                },
+                windowDefaultStates = {
+                    isMaximized = true,
+                    isMinimized = false
+                }
             }
-        }
+            
+            local added, errorMessage = exports.fd_laptop:addCustomApp(appData)
+            
+            if not added then
+                error("Icon path failed: " .. tostring(errorMessage))
+            end
+            
+            return added
+        end)
         
-        print("^3[Casino] App data prepared, calling addCustomApp^0")
-        local added, errorMessage = exports.fd_laptop:addCustomApp(appData)
-        
-        if not added then
-            error("fd_laptop registration failed: " .. tostring(errorMessage))
+        if success and result then
+            print(("^2[Casino] Successfully registered with icon path: %s^0"):format(iconPath))
+            break
+        else
+            print(("^1[Casino] Icon path %d failed: %s^0"):format(i, result or "unknown error"))
         end
-        
-        return added
-    end)
+    end
 
     if success and result then
         print("^2[Casino] Successfully registered with fd_laptop^0")
