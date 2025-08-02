@@ -41,18 +41,18 @@ interface NavItem {
 
 const Navigation = memo(() => {
   const { user, currentPage, setCurrentPage, sendNUIMessage, config } = useAppStore()
-  const { t, locale, setLocale } = useLocale()
+  const { t, locale, setLocale, isInitialized } = useLocale()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  // Create navigation items with translations - Only blue theme
+  // Create navigation items with safe translations - Only blue theme
   const navigationItems: NavItem[] = [
-    { id: 'lobby', label: t('nav.lobby'), icon: <IconHome size={20} />, color: 'blue' },
-    { id: 'slots', label: t('nav.slots'), icon: <IconDeviceGamepad size={20} />, color: 'blue' },
-    { id: 'plinko', label: t('nav.plinko'), icon: <IconCircle size={20} />, color: 'blue' },
-    { id: 'mines', label: t('nav.mines'), icon: <IconBomb size={20} />, color: 'blue' },
-    { id: 'aviator', label: t('nav.aviator'), icon: <IconTrendingUp size={20} />, color: 'blue' },
-    { id: 'banking', label: t('nav.banking'), icon: <IconWallet size={20} />, color: 'blue' },
-    { id: 'transactions', label: t('nav.transactions'), icon: <IconReceipt size={20} />, color: 'blue' },
+    { id: 'lobby', label: isInitialized ? t('nav.lobby') : 'Lobby', icon: <IconHome size={20} />, color: 'blue' },
+    { id: 'slots', label: isInitialized ? t('nav.slots') : 'Slots', icon: <IconDeviceGamepad size={20} />, color: 'blue' },
+    { id: 'plinko', label: isInitialized ? t('nav.plinko') : 'Plinko', icon: <IconCircle size={20} />, color: 'blue' },
+    { id: 'mines', label: isInitialized ? t('nav.mines') : 'Mines', icon: <IconBomb size={20} />, color: 'blue' },
+    { id: 'aviator', label: isInitialized ? t('nav.aviator') : 'Aviator', icon: <IconTrendingUp size={20} />, color: 'blue' },
+    { id: 'banking', label: isInitialized ? t('nav.banking') : 'Banking', icon: <IconWallet size={20} />, color: 'blue' },
+    { id: 'transactions', label: isInitialized ? t('nav.transactions') : 'History', icon: <IconReceipt size={20} />, color: 'blue' },
   ]
 
   const handleLogout = useCallback(async () => {
@@ -204,28 +204,28 @@ const Navigation = memo(() => {
             </Menu.Target>
 
             <Menu.Dropdown>
-              <Menu.Label>{t('nav.account', 'Account')}</Menu.Label>
+              <Menu.Label>{isInitialized ? t('nav.account', 'Account') : 'Account'}</Menu.Label>
               <Menu.Item
                 leftSection={<IconUser size={16} />}
                 onClick={() => setCurrentPage('profile')}
               >
-                {t('nav.profile', 'Profile')}
+                {isInitialized ? t('nav.profile', 'Profile') : 'Profile'}
               </Menu.Item>
               <Menu.Item
                 leftSection={<IconWallet size={16} />}
                 onClick={() => setCurrentPage('banking')}
               >
-                {t('nav.banking')}
+                {isInitialized ? t('nav.banking') : 'Banking'}
               </Menu.Item>
               <Menu.Item
                 leftSection={<IconReceipt size={16} />}
                 onClick={() => setCurrentPage('transactions')}
               >
-                {t('nav.transactions')}
+                {isInitialized ? t('nav.transactions') : 'History'}
               </Menu.Item>
               
               <Menu.Divider />
-              <Menu.Label>{t('ui.settings', 'Settings')}</Menu.Label>
+              <Menu.Label>{isInitialized ? t('ui.settings', 'Settings') : 'Settings'}</Menu.Label>
               <Menu.Item
                 leftSection={<IconLanguage size={16} />}
                 closeMenuOnClick={false}
@@ -250,7 +250,7 @@ const Navigation = memo(() => {
                 color="gray"
                 onClick={handleLogout}
               >
-                {t('auth.logout')}
+                {isInitialized ? t('auth.logout') : 'Logout'}
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>

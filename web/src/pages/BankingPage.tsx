@@ -31,6 +31,7 @@ import {
 } from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
 import { useAppStore } from '@/store/useAppStore'
+import { useLocale } from '@/hooks/useLocale'
 import { motion } from 'framer-motion'
 
 interface TransactionForm {
@@ -41,6 +42,7 @@ export function BankingPage() {
   const [isDepositing, setIsDepositing] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const { user, sendNUIMessage } = useAppStore()
+  const { t, isInitialized } = useLocale()
 
   const depositForm = useForm<TransactionForm>({
     initialValues: { amount: 100 },
@@ -103,20 +105,20 @@ export function BankingPage() {
   const features = [
     {
       icon: <IconShieldCheck size={24} />,
-      title: t('lobby.secure_transactions'),
-      description: t('lobby.secure_desc'),
+      title: isInitialized ? t('lobby.secure_transactions') : 'Secure Transactions',
+      description: isInitialized ? t('lobby.secure_desc') : 'All transactions are encrypted and secure',
       color: 'green',
     },
     {
       icon: <IconClock size={24} />,
-      title: t('lobby.instant_processing'),
-      description: t('lobby.instant_desc'),
+      title: isInitialized ? t('lobby.instant_processing') : 'Instant Processing',
+      description: isInitialized ? t('lobby.instant_desc') : 'Deposits and withdrawals processed instantly',
       color: 'blue',
     },
     {
       icon: <IconBuildingBank size={24} />,
-      title: t('lobby.bank_integration'),
-      description: t('lobby.bank_desc'),
+      title: isInitialized ? t('lobby.bank_integration') : 'Bank Integration',
+      description: isInitialized ? t('lobby.bank_desc') : 'Direct integration with your bank account',
       color: 'teal',
     },
   ]

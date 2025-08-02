@@ -182,11 +182,25 @@ interface LocaleContextType {
 
 const LocaleContext = createContext<LocaleContextType | null>(null)
 
-// Custom hook to use locale
+// Custom hook to use locale with comprehensive fallback
 export function useLocale() {
   const context = useContext(LocaleContext)
+  
+  // Create a safe translation function that always works
+  const safeT = (key: string, fallback?: string): string => {
+    try {
+      if (!context || !context.localeData || !context.t) {
+        return fallback || key
+      }
+      return context.t(key, fallback)
+    } catch (error) {
+      console.warn(`Translation error for key '${key}':`, error)
+      return fallback || key
+    }
+  }
+  
   if (!context) {
-    // Return fallback context instead of throwing error
+    // Return comprehensive fallback context instead of throwing error
     console.warn('useLocale used outside LocaleProvider, using fallback')
     return {
       locale: 'en' as LocaleCode,
@@ -194,10 +208,15 @@ export function useLocale() {
       setLocale: () => {},
       updateServerLocale: () => {},
       isInitialized: true,
-      t: (key: string, fallback?: string) => fallback || key
+      t: safeT
     }
   }
-  return context
+  
+  // Return context with safe translation function
+  return {
+    ...context,
+    t: safeT
+  }
 }
 
 // Locale provider props
@@ -297,13 +316,16 @@ export function LocaleProvider({ children, initialLocale = 'en', serverLocale }:
         
         console.log(`Initializing locale: ${targetLocale}`)
         setLocaleState(targetLocale)
-        await loadLocaleData(targetLocale)
+        
+        // Only load locale data if it's not English (since we start with English)
+        if (targetLocale !== 'en') {
+          await loadLocaleData(targetLocale)
+        }
       } catch (error) {
         console.warn('Error initializing locale:', error)
-        // Fallback to English and mark as initialized
+        // Fallback to English and keep initialized
         setLocaleState('en')
         setLocaleData(DEFAULT_LOCALE)
-        setIsInitialized(true)
       }
     }
     

@@ -50,7 +50,7 @@ const MAX_TRAIL_LENGTH = 8 // Reduced trail for better performance
 
 export function PlinkoPage() {
   const { user, sendNUIMessage } = useAppStore()
-  const { t } = useLocale()
+  const { t, isInitialized } = useLocale()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationFrameRef = useRef<number>()
   
@@ -365,14 +365,14 @@ export function PlinkoPage() {
         <Group justify="space-between" align="center">
           <div>
             <Title order={2} c="white" fw={700}>
-              🔴 {t('plinko.title')}
+              🔴 {isInitialized ? t('plinko.title') : 'Plinko'}
             </Title>
             <Text c="dimmed" size="sm">
-              {t('plinko.subtitle')}
+              {isInitialized ? t('plinko.subtitle') : 'Drop the ball and watch it bounce through the pegs!'}
             </Text>
           </div>
           <Group gap="md">
-            <Text c="dimmed" size="sm">{t('nav.balance')}:</Text>
+            <Text c="dimmed" size="sm">{isInitialized ? t('nav.balance') : 'Balance'}:</Text>
             <Badge size="lg" color="blue" variant="filled">
               ${parseFloat(user.balance).toLocaleString()}
             </Badge>
@@ -385,7 +385,7 @@ export function PlinkoPage() {
             <Paper p="md" bg="dark.7" radius="md">
               <Stack gap="md">
                 <div>
-                  <Text size="sm" c="dimmed" mb="xs">{t('games.bet_amount')}</Text>
+                  <Text size="sm" c="dimmed" mb="xs">{isInitialized ? t('games.bet_amount') : 'Bet Amount'}</Text>
                   <Group gap="xs">
                     <ActionIcon 
                       variant="filled" 
@@ -449,7 +449,10 @@ export function PlinkoPage() {
                   variant="gradient"
                   className="btn-casino"
                 >
-                  {isPlaying ? t('plinko.dropping') : t('games.drop_ball')}
+                  {isPlaying ? 
+                    (isInitialized ? t('plinko.dropping') : 'Dropping...') : 
+                    (isInitialized ? t('games.drop_ball') : 'Drop Ball')
+                  }
                 </Button>
 
                 {lastWin && (

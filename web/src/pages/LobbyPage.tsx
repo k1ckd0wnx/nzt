@@ -29,6 +29,7 @@ import {
   IconDeviceGamepad2
 } from '@tabler/icons-react'
 import { useAppStore } from '@/store/useAppStore'
+import { useLocale } from '@/hooks/useLocale'
 import { motion } from 'framer-motion'
 
 interface GameCard {
@@ -45,6 +46,7 @@ interface GameCard {
 
 export function LobbyPage() {
   const { setCurrentPage, user, config } = useAppStore()
+  const { t, isInitialized } = useLocale()
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -58,8 +60,8 @@ export function LobbyPage() {
   const gameCards: GameCard[] = [
     {
       id: 'slots',
-      name: t('lobby.slot_machines'),
-      description: t('lobby.slot_description'),
+      name: isInitialized ? t('lobby.slot_machines') : 'Slot Machines',
+      description: isInitialized ? t('lobby.slot_description') : '5 unique themed slots with jackpots',
       icon: <IconDeviceGamepad size={32} />,
       minBet: config?.minBets.slots || 20,
       color: 'blue',
@@ -68,8 +70,8 @@ export function LobbyPage() {
     },
     {
       id: 'plinko',
-      name: t('nav.plinko'),
-      description: t('lobby.plinko_description'),
+      name: isInitialized ? t('nav.plinko') : 'Plinko',
+      description: isInitialized ? t('lobby.plinko_description') : 'Drop balls and watch them bounce',
       icon: <IconCircle size={32} />,
       minBet: config?.minBets.plinko || 10,
       color: 'blue',
@@ -77,8 +79,8 @@ export function LobbyPage() {
     },
     {
       id: 'mines',
-      name: t('nav.mines'),
-      description: t('lobby.mines_description'),
+      name: isInitialized ? t('nav.mines') : 'Mines',
+      description: isInitialized ? t('lobby.mines_description') : 'Reveal tiles and avoid the mines',
       icon: <IconBomb size={32} />,
       minBet: config?.minBets.mines || 10,
       color: 'blue',
@@ -87,8 +89,8 @@ export function LobbyPage() {
     },
     {
       id: 'aviator',
-      name: t('nav.aviator'),
-      description: t('lobby.aviator_description'),
+      name: isInitialized ? t('nav.aviator') : 'Aviator',
+      description: isInitialized ? t('lobby.aviator_description') : 'Cash out before the plane crashes',
       icon: <IconTrendingUp size={32} />,
       minBet: config?.minBets.aviator || 10,
       color: 'blue',
@@ -99,19 +101,19 @@ export function LobbyPage() {
 
   const userStats = [
     {
-      label: t('lobby.total_wagered'),
+      label: isInitialized ? t('lobby.total_wagered') : 'Total Wagered',
       value: formatCurrency(user?.totalWagered || 0),
       icon: <IconCoins size={20} />,
       color: 'blue',
     },
     {
-      label: t('lobby.total_won'),
+      label: isInitialized ? t('lobby.total_won') : 'Total Won',
       value: formatCurrency(user?.totalWon || 0),
       icon: <IconTrophy size={20} />,
       color: 'blue',
     },
     {
-      label: t('lobby.win_rate'),
+      label: isInitialized ? t('lobby.win_rate') : 'Win Rate',
       value: user?.totalWagered && user?.totalWagered > 0 
         ? `${((user.totalWon || 0) / user.totalWagered * 100).toFixed(1)}%`
         : '0%',
@@ -119,7 +121,7 @@ export function LobbyPage() {
       color: 'blue',
     },
     {
-      label: t('lobby.level'),
+      label: isInitialized ? t('lobby.level') : 'Level',
       value: Math.floor((user?.totalWagered || 0) / 1000) + 1,
       icon: <IconStar size={20} />,
       color: 'blue',
@@ -217,12 +219,12 @@ export function LobbyPage() {
                         <Stack gap="xs">
                           {game.isPopular && (
                             <Badge color="yellow" variant="filled" size="sm">
-                              {t('lobby.popular')}
+                              {isInitialized ? t('lobby.popular') : 'Popular'}
                             </Badge>
                           )}
                           {game.isNew && (
                             <Badge color="green" variant="filled" size="sm">
-                              {t('lobby.new')}
+                              {isInitialized ? t('lobby.new') : 'New'}
                             </Badge>
                           )}
                         </Stack>
