@@ -16,32 +16,38 @@ CreateThread(function()
         Wait(500)
     end
 
-    local added, errorMessage = exports.fd_laptop:addCustomApp({
-        id = "casino",
-        name = "Premium Casino",
-        isDefaultApp = true,
-        needsUpdate = false,
-        icon = 'dice.svg',
-        ui = ("https://cfx-nui-%s/web/dist/index.html"):format(GetCurrentResourceName()),
-        keepAlive = true,
-        ignoreInternalLoading = true,
-        windowActions = {
-            isResizable = false,
-            isMaximizable = false,
-            isClosable = true,
-            isMinimizable = true,
-            isDraggable = false
-        },
-        windowDefaultStates = {
-            isMaximized = true,
-            isMinimized = false
-        },
-    })
+    -- Additional wait to ensure fd_laptop is fully loaded
+    Wait(2000)
 
-    if added then
+    local success, result = pcall(function()
+        return exports.fd_laptop:addCustomApp({
+            id = "casino",
+            name = "Premium Casino",
+            isDefaultApp = true,
+            needsUpdate = false,
+            icon = 'dice.svg',
+            ui = ("https://cfx-nui-%s/web/dist/index.html"):format(GetCurrentResourceName()),
+            keepAlive = true,
+            ignoreInternalLoading = true,
+            windowActions = {
+                isResizable = false,
+                isMaximizable = false,
+                isClosable = true,
+                isMinimizable = true,
+                isDraggable = false
+            },
+            windowDefaultStates = {
+                isMaximized = true,
+                isMinimized = false
+            },
+        })
+    end)
+
+    if success and result then
         print("^2[Casino] Successfully registered with fd_laptop^0")
     else
-        print("^1[Casino] Could not add casino app: " .. (errorMessage or "unknown error") .. "^0")
+        print("^1[Casino] Could not add casino app: " .. (result or "unknown error") .. "^0")
+        print("^3[Casino] Make sure fd_laptop is properly installed and running^0")
     end
 end)
 

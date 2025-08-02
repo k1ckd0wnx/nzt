@@ -76,6 +76,7 @@ end)
 
 -- Initialize when app is accessed through fd_laptop
 RegisterNUICallback("appLoaded", function(data, cb)
+    print("^2[Casino] App loaded callback received from React^0")
     TriggerServerEvent("casino:initializeApp")
     cb("ok")
 end)
@@ -260,5 +261,11 @@ end)
 RegisterCommand("casino", function()
     openCasinoApp()
 end, false)
+
+-- Export for fd_laptop (this will be called by fd_laptop when app is opened)
+exports('openApp', function(source)
+    print("^2[Casino] openApp export called by fd_laptop^0")
+    openCasinoApp()
+end)
 
 print("^2[Casino] Client initialized successfully!^0")

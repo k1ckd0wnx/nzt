@@ -26,12 +26,24 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        await sendNUIMessage('appLoaded')
+        // Check if we're in proper FiveM NUI context
+        // @ts-ignore
+        const hasNativeAPI = typeof window.invokeNative !== 'undefined' || typeof window.GetParentResourceName !== 'undefined'
+        
+        if (hasNativeAPI) {
+          console.log('Initializing casino app in NUI context...')
+          await sendNUIMessage('appLoaded')
+        } else {
+          console.log('Not in NUI context - casino app should only run inside fd_laptop')
+          // Don't initialize outside of FiveM/fd_laptop
+        }
       } catch (error) {
-        console.log('App initialization:', error)
+        console.log('App initialization error:', error)
       }
     }
-    initializeApp()
+    
+    // Small delay to ensure context is ready
+    setTimeout(initializeApp, 1000)
   }, [])
 
   // Show loading screen until initialized

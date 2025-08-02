@@ -21,7 +21,7 @@ server_scripts {
     'server/*.lua'
 }
 
-ui_page 'web/dist/index.html'
+-- ui_page 'web/dist/index.html' -- Disabled: UI is served through fd_laptop
 
 files {
     'web/dist/**/*',

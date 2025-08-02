@@ -21,20 +21,38 @@ interface AppStore extends AppState {
   sendNUIMessage: (action: string, data?: any) => Promise<any>
 }
 
+// Get resource name helper
+const GetParentResourceName = (): string => {
+  // @ts-ignore - FiveM NUI function
+  return window.GetParentResourceName ? window.GetParentResourceName() : 'casino'
+}
+
 // NUI Communication helper
 const sendNUIMessage = async (action: string, data?: any): Promise<any> => {
   return new Promise((resolve, reject) => {
-    // @ts-ignore - NUI callback function
-    fetch(`https://casino/${action}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data || {}),
-    })
-      .then(response => response.json())
-      .then(resolve)
-      .catch(reject)
+    try {
+      // Check if we're in a proper NUI context
+      // @ts-ignore - FiveM NUI functions
+      if (typeof window.invokeNative === 'undefined' && typeof window.GetParentResourceName === 'undefined') {
+        console.log('Not in NUI context, skipping callback')
+        reject(new Error('Not in NUI context'))
+        return
+      }
+
+      // @ts-ignore - NUI callback function
+      fetch(`https://${GetParentResourceName()}/${action}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data || {}),
+      })
+        .then(response => response.json())
+        .then(resolve)
+        .catch(reject)
+    } catch (error) {
+      reject(error)
+    }
   })
 }
 
