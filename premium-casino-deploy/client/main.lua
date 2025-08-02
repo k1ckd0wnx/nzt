@@ -1,0 +1,264 @@
+-- Premium Casino Client - Main Logic
+-- Handles fd_laptop integration and UI communication
+
+local isAppOpen = false
+local nuiData = {}
+
+-- Register with fd_laptop (moved to server-side as per fd_laptop docs)
+
+-- Event Handlers from Server
+RegisterNetEvent(Utils.Events.OPEN_APP, function()
+    openCasinoApp()
+end)
+
+-- App initialization is now handled by React component
+
+RegisterNetEvent(Utils.Events.UPDATE_UI, function(data)
+    if isAppOpen then
+        SendNUIMessage({
+            type = "updateUI",
+            data = data
+        })
+    end
+    
+    -- Store important data for when app reopens
+    if data.action == "login_success" then
+        nuiData.user = data.user
+    elseif data.action == "balance_updated" then
+        if nuiData.user then
+            nuiData.user.balance = data.balance
+        end
+    end
+end)
+
+-- Functions
+function openCasinoApp()
+    if isAppOpen then return end
+    
+    isAppOpen = true
+    
+    -- fd_laptop handles NUI focus, we just send initial data
+    SendNUIMessage({
+        type = "openApp",
+        data = {
+            config = {
+                casinoName = Config.CasinoName or "Premium Casino",
+                minBets = Config.MinBets or { slots = 20, plinko = 10, mines = 10, aviator = 10 },
+                maxBets = Config.MaxBets or { slots = 10000, plinko = 5000, mines = 5000, aviator = 50000 },
+                slotMachines = Config.SlotMachines or {}
+            },
+            user = nuiData.user,
+            events = Utils.Events
+        }
+    })
+    
+    print("^2[Casino] Casino app opened^0")
+end
+
+function closeCasinoApp()
+    if not isAppOpen then return end
+    
+    isAppOpen = false
+    
+    -- fd_laptop handles NUI focus, we just send close message
+    SendNUIMessage({
+        type = "closeApp"
+    })
+    
+    print("^3[Casino] Casino app closed^0")
+end
+
+-- NUI Callbacks
+RegisterNUICallback("closeApp", function(data, cb)
+    closeCasinoApp()
+    cb("ok")
+end)
+
+-- Initialize when app is accessed through fd_laptop
+RegisterNUICallback("appLoaded", function(data, cb)
+    TriggerServerEvent("casino:initializeApp")
+    cb("ok")
+end)
+
+RegisterNUICallback("register", function(data, cb)
+    if not data.username or not data.email or not data.password then
+        cb({ success = false, message = "Missing required fields" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.REGISTER, data.username, data.email, data.password)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("login", function(data, cb)
+    if not data.username or not data.password then
+        cb({ success = false, message = "Missing username or password" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.LOGIN, data.username, data.password)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("logout", function(data, cb)
+    nuiData.user = nil
+    
+    SendNUIMessage({
+        type = "updateUI",
+        data = { action = "logout_success" }
+    })
+    
+    cb({ success = true })
+end)
+
+RegisterNUICallback("deposit", function(data, cb)
+    if not data.amount or not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Invalid request" })
+        return
+    end
+    
+    local amount = tonumber(data.amount)
+    if not amount or amount <= 0 then
+        cb({ success = false, message = "Invalid amount" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.DEPOSIT, amount, nuiData.user.sessionToken)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("withdraw", function(data, cb)
+    if not data.amount or not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Invalid request" })
+        return
+    end
+    
+    local amount = tonumber(data.amount)
+    if not amount or amount <= 0 then
+        cb({ success = false, message = "Invalid amount" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.WITHDRAW, amount, nuiData.user.sessionToken)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("getBalance", function(data, cb)
+    if not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Not logged in" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.GET_BALANCE, nuiData.user.sessionToken)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("getTransactions", function(data, cb)
+    if not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Not logged in" })
+        return
+    end
+    
+    local limit = data.limit or 50
+    local offset = data.offset or 0
+    
+    TriggerServerEvent(Utils.Events.GET_TRANSACTIONS, nuiData.user.sessionToken, limit, offset)
+    cb({ success = true })
+end)
+
+-- Game-specific callbacks
+RegisterNUICallback("slotsSpin", function(data, cb)
+    if not data.machineType or not data.betAmount or not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Invalid request" })
+        return
+    end
+    
+    local betAmount = tonumber(data.betAmount)
+    if not betAmount or betAmount <= 0 then
+        cb({ success = false, message = "Invalid bet amount" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.SLOTS_SPIN, data.machineType, betAmount, nuiData.user.sessionToken)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("plinkoDrop", function(data, cb)
+    if not data.betAmount or not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Invalid request" })
+        return
+    end
+    
+    local betAmount = tonumber(data.betAmount)
+    if not betAmount or betAmount <= 0 then
+        cb({ success = false, message = "Invalid bet amount" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.PLINKO_DROP, betAmount, nuiData.user.sessionToken)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("minesReveal", function(data, cb)
+    if not data.position or not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Invalid request" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.MINES_REVEAL, data.position, nuiData.user.sessionToken)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("minesCashout", function(data, cb)
+    if not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Invalid request" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.MINES_CASHOUT, nuiData.user.sessionToken)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("aviatorBet", function(data, cb)
+    if not data.betAmount or not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Invalid request" })
+        return
+    end
+    
+    local betAmount = tonumber(data.betAmount)
+    if not betAmount or betAmount <= 0 then
+        cb({ success = false, message = "Invalid bet amount" })
+        return
+    end
+    
+    local autoCashOut = data.autoCashOut and tonumber(data.autoCashOut) or nil
+    
+    TriggerServerEvent(Utils.Events.AVIATOR_BET, betAmount, autoCashOut, nuiData.user.sessionToken)
+    cb({ success = true })
+end)
+
+RegisterNUICallback("aviatorCashout", function(data, cb)
+    if not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Invalid request" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.AVIATOR_CASHOUT, nuiData.user.sessionToken)
+    cb({ success = true })
+end)
+
+-- Handle resource stop
+AddEventHandler("onResourceStop", function(resourceName)
+    if GetCurrentResourceName() == resourceName then
+        if isAppOpen then
+            closeCasinoApp()
+        end
+    end
+end)
+
+-- Debug command (remove in production)
+RegisterCommand("casino", function()
+    openCasinoApp()
+end, false)
+
+print("^2[Casino] Client initialized successfully!^0")
