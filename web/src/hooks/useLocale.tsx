@@ -193,36 +193,62 @@ export function useLocale() {
 interface LocaleProviderProps {
   children: ReactNode
   initialLocale?: LocaleCode
+  serverLocale?: string
 }
 
 // Locale provider component
-export function LocaleProvider({ children, initialLocale = 'en' }: LocaleProviderProps) {
+export function LocaleProvider({ children, initialLocale = 'en', serverLocale }: LocaleProviderProps) {
   const [locale, setLocaleState] = useState<LocaleCode>(initialLocale)
   const [localeData, setLocaleData] = useState<LocaleData>(DEFAULT_LOCALE)
+  const [configReceived, setConfigReceived] = useState(false)
 
   // Function to load locale data
   const loadLocaleData = async (localeCode: LocaleCode) => {
     try {
+      // Get the base URL for NUI context
+      const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1)
+      const localeUrl = `${baseUrl}locales/${localeCode}.json`
+      
+      console.log(`Loading locale from: ${localeUrl}`)
+      
       // Try to load locale from the server
-      const response = await fetch(`/locales/${localeCode}.json`)
+      const response = await fetch(localeUrl)
       if (response.ok) {
         const data = await response.json()
+        console.log(`Successfully loaded locale ${localeCode}:`, data)
         setLocaleData({ ...DEFAULT_LOCALE, ...data })
       } else {
+        console.warn(`Failed to fetch locale ${localeCode}, status: ${response.status}`)
         // Fallback to default locale
         setLocaleData(DEFAULT_LOCALE)
       }
     } catch (error) {
-      console.warn(`Failed to load locale ${localeCode}, using default`)
+      console.warn(`Failed to load locale ${localeCode}, using default:`, error)
       setLocaleData(DEFAULT_LOCALE)
     }
   }
 
   // Set locale and load data
   const setLocale = (newLocale: LocaleCode) => {
+    console.log(`Setting locale to: ${newLocale}`)
     setLocaleState(newLocale)
     loadLocaleData(newLocale)
     localStorage.setItem('casino-locale', newLocale)
+  }
+
+  // Function to handle server locale configuration
+  const handleServerLocale = (serverLoc?: string) => {
+    if (serverLoc && serverLoc in AVAILABLE_LOCALES && !configReceived) {
+      console.log(`Received server locale: ${serverLoc}`)
+      const savedLocale = localStorage.getItem('casino-locale') as LocaleCode
+      
+      // Use saved locale if exists, otherwise use server locale
+      const targetLocale = (savedLocale && savedLocale in AVAILABLE_LOCALES) ? savedLocale : serverLoc as LocaleCode
+      
+      setLocaleState(targetLocale)
+      loadLocaleData(targetLocale)
+      setConfigReceived(true)
+    }
   }
 
   // Translation function
@@ -234,6 +260,10 @@ export function LocaleProvider({ children, initialLocale = 'en' }: LocaleProvide
       if (value && typeof value === 'object' && k in value) {
         value = value[k]
       } else {
+        // Debug: log when a key is not found
+        if (locale !== 'en') {
+          console.log(`Translation key '${key}' not found in locale '${locale}', using fallback`)
+        }
         return fallback || key
       }
     }
@@ -241,15 +271,26 @@ export function LocaleProvider({ children, initialLocale = 'en' }: LocaleProvide
     return typeof value === 'string' ? value : (fallback || key)
   }
 
-  // Initialize locale from localStorage
+  // Initialize locale from localStorage or server config
   useEffect(() => {
-    const savedLocale = localStorage.getItem('casino-locale') as LocaleCode
-    if (savedLocale && savedLocale in AVAILABLE_LOCALES) {
-      setLocale(savedLocale)
+    if (serverLocale) {
+      handleServerLocale(serverLocale)
     } else {
-      loadLocaleData(locale)
+      const savedLocale = localStorage.getItem('casino-locale') as LocaleCode
+      if (savedLocale && savedLocale in AVAILABLE_LOCALES) {
+        setLocale(savedLocale)
+      } else {
+        loadLocaleData(locale)
+      }
     }
-  }, [])
+  }, [serverLocale])
+
+  // Watch for server locale changes
+  useEffect(() => {
+    if (serverLocale && configReceived) {
+      handleServerLocale(serverLocale)
+    }
+  }, [serverLocale, configReceived])
 
   const contextValue: LocaleContextType = {
     locale,

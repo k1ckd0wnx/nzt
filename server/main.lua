@@ -401,7 +401,9 @@ function openApp(source)
             casinoName = Config.CasinoName,
             minBets = Config.MinBets,
             maxBets = Config.MaxBets,
-            slotMachines = Config.SlotMachines or {}
+            slotMachines = Config.SlotMachines or {},
+            locale = Config.Locale or 'en',
+            availableLocales = Config.AvailableLocales or { en = 'English', bg = 'Български' }
         },
         user = nil,  -- Will be set below if user exists
         events = {}

@@ -6,6 +6,7 @@ import { Notifications } from '@mantine/notifications'
 import App from './App'
 import { theme } from './theme'
 import { LocaleProvider } from './hooks/useLocale'
+import { useAppStore } from './store/useAppStore'
 
 // Import Mantine CSS
 import '@mantine/core/styles.css'
@@ -15,13 +16,22 @@ import '@mantine/notifications/styles.css'
 // Import custom CSS
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <LocaleProvider>
+// Wrapper component to access config locale
+function AppWrapper() {
+  const { config } = useAppStore()
+  
+  return (
+    <LocaleProvider serverLocale={config?.locale}>
       <MantineProvider theme={theme} defaultColorScheme="dark">
         <Notifications position="top-right" />
         <App />
       </MantineProvider>
     </LocaleProvider>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <AppWrapper />
   </React.StrictMode>,
 )
