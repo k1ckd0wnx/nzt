@@ -38,11 +38,13 @@ interface Peg {
 
 const MULTIPLIERS = [100, 26, 9, 4, 2, 1.5, 1, 0.5, 0.2, 0.5, 1, 1.5, 2, 4, 9, 26, 100]
 const ROWS = 16
-const PEG_RADIUS = 4
-const BALL_RADIUS = 6
-const GRAVITY = 0.3
-const BOUNCE = 0.7
-const FRICTION = 0.99
+const PEG_RADIUS = 3
+const BALL_RADIUS = 5
+const GRAVITY = 0.25
+const BOUNCE = 0.6
+const FRICTION = 0.998
+const CANVAS_WIDTH = 700
+const CANVAS_HEIGHT = 600
 
 export function PlinkoPage() {
   const { user, sendNUIMessage } = useAppStore()
@@ -56,16 +58,13 @@ export function PlinkoPage() {
   const [lastWin, setLastWin] = useState<number | null>(null)
   const [ballCount, setBallCount] = useState(0)
 
-  // Initialize pegs
+  // Initialize pegs with better distribution
   useEffect(() => {
     const newPegs: Peg[] = []
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const width = canvas.width
-    const height = canvas.height
-    const pegSpacing = width / (ROWS + 1)
-    const rowHeight = (height - 200) / ROWS
+    const width = CANVAS_WIDTH
+    const height = CANVAS_HEIGHT
+    const pegSpacing = width / (ROWS + 2)
+    const rowHeight = (height - 180) / ROWS
 
     for (let row = 0; row < ROWS; row++) {
       const pegsInRow = row + 3
@@ -74,7 +73,7 @@ export function PlinkoPage() {
       for (let col = 0; col < pegsInRow; col++) {
         newPegs.push({
           x: startX + col * pegSpacing,
-          y: 100 + row * rowHeight,
+          y: 80 + row * rowHeight,
           radius: PEG_RADIUS
         })
       }
@@ -83,63 +82,111 @@ export function PlinkoPage() {
     setPegs(newPegs)
   }, [])
 
-  // Animation loop
+  // Enhanced animation loop with better graphics
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
 
+    // Enable hardware acceleration
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+
     const animate = () => {
-      // Clear canvas
-      ctx.fillStyle = 'rgba(12, 20, 38, 0.1)'
+      // Clear canvas with gradient background
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+      gradient.addColorStop(0, 'rgba(15, 23, 42, 0.95)')
+      gradient.addColorStop(1, 'rgba(30, 41, 59, 0.95)')
+      ctx.fillStyle = gradient
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      // Draw pegs
+      // Draw enhanced pegs with glow effect
       pegs.forEach(peg => {
+        // Glow effect
+        ctx.shadowColor = '#3b82f6'
+        ctx.shadowBlur = 10
+        ctx.shadowOffsetX = 0
+        ctx.shadowOffsetY = 0
+        
+        // Peg gradient
+        const pegGradient = ctx.createRadialGradient(peg.x, peg.y, 0, peg.x, peg.y, peg.radius * 2)
+        pegGradient.addColorStop(0, '#60a5fa')
+        pegGradient.addColorStop(0.7, '#3b82f6')
+        pegGradient.addColorStop(1, '#1e40af')
+        
         ctx.beginPath()
         ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2)
-        ctx.fillStyle = '#3b82f6'
+        ctx.fillStyle = pegGradient
         ctx.fill()
-        ctx.strokeStyle = '#60a5fa'
-        ctx.lineWidth = 1
+        
+        // Peg border
+        ctx.shadowBlur = 0
+        ctx.strokeStyle = '#1e40af'
+        ctx.lineWidth = 1.5
         ctx.stroke()
       })
 
-      // Draw multiplier zones
+      // Reset shadow for other elements
+      ctx.shadowBlur = 0
+
+      // Draw enhanced multiplier zones
       const zoneWidth = canvas.width / MULTIPLIERS.length
       MULTIPLIERS.forEach((multiplier, index) => {
         const x = index * zoneWidth
-        const y = canvas.height - 60
+        const y = canvas.height - 70
         
-        // Zone background
-        ctx.fillStyle = multiplier >= 100 ? 'rgba(34, 197, 94, 0.2)' : 
-                       multiplier >= 10 ? 'rgba(59, 130, 246, 0.2)' : 
-                       'rgba(156, 163, 175, 0.2)'
-        ctx.fillRect(x, y, zoneWidth, 60)
+        // Zone gradient background
+        const zoneGradient = ctx.createLinearGradient(x, y, x, y + 70)
+        if (multiplier >= 100) {
+          zoneGradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)')
+          zoneGradient.addColorStop(1, 'rgba(34, 197, 94, 0.6)')
+        } else if (multiplier >= 10) {
+          zoneGradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)')
+          zoneGradient.addColorStop(1, 'rgba(59, 130, 246, 0.6)')
+        } else {
+          zoneGradient.addColorStop(0, 'rgba(156, 163, 175, 0.3)')
+          zoneGradient.addColorStop(1, 'rgba(156, 163, 175, 0.6)')
+        }
         
-        // Multiplier text
-        ctx.fillStyle = multiplier >= 100 ? '#22c55e' : 
-                       multiplier >= 10 ? '#3b82f6' : '#9ca3af'
-        ctx.font = 'bold 12px Inter'
+        ctx.fillStyle = zoneGradient
+        ctx.fillRect(x, y, zoneWidth, 70)
+        
+        // Zone border
+        ctx.strokeStyle = multiplier >= 100 ? '#22c55e' : 
+                         multiplier >= 10 ? '#3b82f6' : '#9ca3af'
+        ctx.lineWidth = 2
+        ctx.strokeRect(x, y, zoneWidth, 70)
+        
+        // Multiplier text with better styling
+        const textColor = multiplier >= 100 ? '#22c55e' : 
+                         multiplier >= 10 ? '#3b82f6' : '#9ca3af'
+        ctx.fillStyle = textColor
+        ctx.font = 'bold 14px Inter'
         ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        
+        // Text shadow for better visibility
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
+        ctx.shadowBlur = 2
         ctx.fillText(`${multiplier}x`, x + zoneWidth / 2, y + 35)
+        ctx.shadowBlur = 0
       })
 
-      // Update and draw balls
+      // Update and draw balls with enhanced physics
       setBalls(prevBalls => {
         const updatedBalls = prevBalls.map(ball => {
-          // Physics
+          // Enhanced physics
           ball.vy += GRAVITY
           ball.x += ball.vx
           ball.y += ball.vy
           ball.vx *= FRICTION
           ball.vy *= FRICTION
 
-          // Add to trail
+          // Add to trail with time-based fading
           ball.trail.push({ x: ball.x, y: ball.y })
-          if (ball.trail.length > 10) ball.trail.shift()
+          if (ball.trail.length > 12) ball.trail.shift()
 
-          // Collision with pegs
+          // Enhanced collision with pegs
           pegs.forEach(peg => {
             const dx = ball.x - peg.x
             const dy = ball.y - peg.y
@@ -153,19 +200,23 @@ export function PlinkoPage() {
               ball.x = targetX
               ball.y = targetY
               
-              ball.vx = Math.cos(angle) * BOUNCE * 2 + (Math.random() - 0.5) * 0.5
-              ball.vy = Math.sin(angle) * BOUNCE * 2
+              // More realistic bounce with randomness
+              const bounceStrength = BOUNCE * (0.8 + Math.random() * 0.4)
+              ball.vx = Math.cos(angle) * bounceStrength * 3 + (Math.random() - 0.5) * 0.8
+              ball.vy = Math.sin(angle) * bounceStrength * 3 + Math.random() * 0.5
             }
           })
 
-          // Wall collision
+          // Enhanced wall collision
           if (ball.x < ball.radius || ball.x > canvas.width - ball.radius) {
             ball.vx *= -BOUNCE
             ball.x = ball.x < ball.radius ? ball.radius : canvas.width - ball.radius
+            // Add some vertical randomness on wall hits
+            ball.vy += (Math.random() - 0.5) * 0.3
           }
 
           // Check if ball reached bottom
-          if (ball.y > canvas.height - 80) {
+          if (ball.y > canvas.height - 90) {
             const zoneIndex = Math.floor(ball.x / (canvas.width / MULTIPLIERS.length))
             const clampedIndex = Math.max(0, Math.min(MULTIPLIERS.length - 1, zoneIndex))
             const winAmount = betAmount * MULTIPLIERS[clampedIndex]
@@ -194,29 +245,63 @@ export function PlinkoPage() {
         return updatedBalls
       })
 
-      // Draw balls
+      // Draw enhanced balls with glow and trails
       balls.forEach(ball => {
-        // Draw trail
-        ctx.strokeStyle = ball.color + '40'
-        ctx.lineWidth = 2
-        ctx.beginPath()
-        ball.trail.forEach((point, index) => {
-          if (index === 0) {
-            ctx.moveTo(point.x, point.y)
-          } else {
-            ctx.lineTo(point.x, point.y)
-          }
-        })
-        ctx.stroke()
+        // Draw enhanced trail with gradient
+        if (ball.trail.length > 1) {
+          ctx.strokeStyle = '#f59e0b'
+          ctx.lineWidth = 3
+          ctx.lineCap = 'round'
+          ctx.lineJoin = 'round'
+          
+          ctx.beginPath()
+          ball.trail.forEach((point, index) => {
+            const opacity = index / ball.trail.length
+            ctx.globalAlpha = opacity * 0.6
+            
+            if (index === 0) {
+              ctx.moveTo(point.x, point.y)
+            } else {
+              ctx.lineTo(point.x, point.y)
+            }
+          })
+          ctx.stroke()
+          ctx.globalAlpha = 1
+        }
 
-        // Draw ball
+        // Draw ball with enhanced glow effect
+        ctx.shadowColor = '#f59e0b'
+        ctx.shadowBlur = 15
+        
+        // Ball gradient
+        const ballGradient = ctx.createRadialGradient(
+          ball.x - ball.radius * 0.3, 
+          ball.y - ball.radius * 0.3, 
+          0, 
+          ball.x, 
+          ball.y, 
+          ball.radius * 1.5
+        )
+        ballGradient.addColorStop(0, '#fbbf24')
+        ballGradient.addColorStop(0.6, '#f59e0b')
+        ballGradient.addColorStop(1, '#d97706')
+        
         ctx.beginPath()
         ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2)
-        ctx.fillStyle = ball.color
+        ctx.fillStyle = ballGradient
         ctx.fill()
+        
+        // Ball border
+        ctx.shadowBlur = 0
         ctx.strokeStyle = '#ffffff'
         ctx.lineWidth = 2
         ctx.stroke()
+        
+        // Ball highlight
+        ctx.beginPath()
+        ctx.arc(ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.3, 0, Math.PI * 2)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
+        ctx.fill()
       })
 
       animationFrameRef.current = requestAnimationFrame(animate)
@@ -236,16 +321,13 @@ export function PlinkoPage() {
     
     setIsPlaying(true)
     setLastWin(null)
-    
-    const canvas = canvasRef.current
-    if (!canvas) return
 
     const newBall: Ball = {
       id: Date.now() + ballCount,
-      x: canvas.width / 2 + (Math.random() - 0.5) * 20,
-      y: 20,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: 0,
+      x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 30,
+      y: 15,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: 0.2,
       radius: BALL_RADIUS,
       color: '#f59e0b',
       trail: []
@@ -391,17 +473,18 @@ export function PlinkoPage() {
 
           {/* Game Canvas */}
           <Grid.Col span={{ base: 12, md: 9 }}>
-            <Paper p="md" bg="dark.8" radius="md" h="600">
+            <Paper p="md" bg="dark.8" radius="md" h="640">
               <canvas
                 ref={canvasRef}
-                width={600}
-                height={580}
+                width={CANVAS_WIDTH}
+                height={CANVAS_HEIGHT}
                 style={{
                   width: '100%',
                   height: '100%',
                   background: 'linear-gradient(180deg, #0c1426 0%, #1a1f36 100%)',
                   borderRadius: '8px',
-                  border: '1px solid #374151'
+                  border: '2px solid #374151',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
                 }}
               />
             </Paper>

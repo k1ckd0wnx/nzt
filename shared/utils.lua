@@ -45,6 +45,10 @@ function Utils.validateBetAmount(amount, gameType)
         return false, "Bet amount must be a number"
     end
     
+    if amount <= 0 then
+        return false, "Bet amount must be greater than $0"
+    end
+    
     if amount < minBet then
         return false, "Bet amount too low (minimum: $" .. minBet .. ")"
     end

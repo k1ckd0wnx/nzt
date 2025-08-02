@@ -583,22 +583,25 @@ RegisterNetEvent(Utils.Events.PLINKO_DROP, function(betAmount, sessionToken)
     -- Generate plinko outcome
     local outcome = GameEngine.Plinko.simulateDrop(betAmount)
     
-    -- Process bet transaction
+    -- Process bet transaction (deducts from casino balance)
     local betTransactionId = createTransaction(session.userId, session.citizenid, "game_bet", betAmount, "plinko", outcome)
     if not betTransactionId then
         TriggerClientEvent('QBCore:Notify', source, 'Transaction failed!', 'error')
         return
     end
     
-    local newBalance = user[1].balance - betAmount
+    -- Get updated balance after bet deduction
+    local updatedUser = MySQL.query.await('SELECT balance FROM casino_users WHERE id = ?', { session.userId })
+    local newBalance = updatedUser[1].balance
     
-    -- Process win if applicable
-    if outcome.payout > betAmount then
-        local winAmount = outcome.payout - betAmount
-        local winTransactionId = createTransaction(session.userId, session.citizenid, "game_win", winAmount, "plinko", outcome)
+    -- Process win if applicable (adds to casino balance)
+    if outcome.payout > 0 then
+        local winTransactionId = createTransaction(session.userId, session.citizenid, "game_win", outcome.payout, "plinko", outcome)
         
         if winTransactionId then
-            newBalance = newBalance + winAmount
+            -- Get final balance after win
+            local finalUser = MySQL.query.await('SELECT balance FROM casino_users WHERE id = ?', { session.userId })
+            newBalance = finalUser[1].balance
         end
     end
     

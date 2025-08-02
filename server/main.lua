@@ -177,8 +177,8 @@ local function addPlayerMoney(source, amount)
     return success and result
 end
 
--- Security Functions
-local function isRateLimited(source, action)
+-- Security Functions (global for games.lua)
+function isRateLimited(source, action)
     local identifier = GetPlayerIdentifiers(source)[1]
     local key = identifier .. ":" .. action
     local current = GetGameTimer()
@@ -197,7 +197,7 @@ local function isRateLimited(source, action)
     return false
 end
 
-local function logAction(source, action, category, level, message, data)
+function logAction(source, action, category, level, message, data)
     local citizenid = nil
     local player = QBCore.Functions.GetPlayer(source)
     
@@ -285,7 +285,7 @@ local function createSession(userId, citizenid)
     return sessionToken
 end
 
-local function validateSession(sessionToken)
+function validateSession(sessionToken)
     local session = CasinoServer.activeSessions[sessionToken]
     if not session then return nil end
     
@@ -312,7 +312,7 @@ local function getUserByCitizenId(citizenid)
 end
 
 -- Transaction Functions
-local function createTransaction(userId, citizenid, transactionType, amount, gameType, gameData)
+function createTransaction(userId, citizenid, transactionType, amount, gameType, gameData)
     local user = MySQL.query.await('SELECT balance FROM casino_users WHERE id = ?', { userId })
     if not user or #user == 0 then return false end
     
