@@ -196,6 +196,22 @@ RegisterNUICallback("logout", function(data, cb)
     cb({ success = true })
 end)
 
+-- Plinko game callbacks
+RegisterNUICallback("plinkoBet", function(data, cb)
+    if not data.betAmount or not nuiData.user or not nuiData.user.sessionToken then
+        cb({ success = false, message = "Invalid request" })
+        return
+    end
+    
+    TriggerServerEvent(Utils.Events.PLINKO_DROP, data.betAmount, nuiData.user.sessionToken)
+    cb({ success = true, message = "Ball dropped!" })
+end)
+
+RegisterNUICallback("plinkoResult", function(data, cb)
+    -- Handle client-side result processing if needed
+    cb({ success = true })
+end)
+
 RegisterNUICallback("deposit", function(data, cb)
     if not data.amount or not nuiData.user or not nuiData.user.sessionToken then
         cb({ success = false, message = "Invalid request" })
