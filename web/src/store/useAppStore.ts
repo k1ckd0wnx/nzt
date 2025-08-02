@@ -225,7 +225,19 @@ export const useAppStore = create<AppStore>((set, get) => ({
 // NUI Event Listener Setup
 if (typeof window !== 'undefined') {
   window.addEventListener('message', (event) => {
+    console.log('Raw NUI message received:', event.data)
+    
+    if (!event.data || typeof event.data !== 'object') {
+      console.log('Invalid NUI message format:', event.data)
+      return
+    }
+    
     const { type, data } = event.data
+    
+    if (!type) {
+      console.log('Missing type in NUI message:', event.data)
+      return
+    }
     
     switch (type) {
       case 'openApp':
@@ -244,7 +256,7 @@ if (typeof window !== 'undefined') {
         break
         
       default:
-        console.log('Unknown NUI message type:', type)
+        console.log('Unknown NUI message type:', type, 'Full message:', event.data)
     }
   })
   

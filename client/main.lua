@@ -14,12 +14,13 @@ end)
 -- App initialization is now handled by React component
 
 RegisterNetEvent(Utils.Events.UPDATE_UI, function(data)
-    if isAppOpen then
-        SendNUIMessage({
-            type = "updateUI",
-            data = data
-        })
-    end
+    print("^3[Casino] UPDATE_UI received with action: " .. (data.action or "no action") .. "^0")
+    
+    -- Always send to NUI - React app will handle appropriately
+    SendNUIMessage({
+        type = "updateUI",
+        data = data
+    })
     
     -- Store important data for when app reopens
     if data.action == "login_success" then
@@ -28,6 +29,9 @@ RegisterNetEvent(Utils.Events.UPDATE_UI, function(data)
         if nuiData.user then
             nuiData.user.balance = data.balance
         end
+    elseif data.action == "initialize_app" then
+        -- Force app to be marked as open when initialization happens
+        isAppOpen = true
     end
 end)
 

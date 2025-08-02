@@ -348,6 +348,7 @@ function openApp(source)
     logAction(source, "app_opened", "system", "info", "Player opened casino app", { citizenid = citizenid })
     
     -- Send initial app configuration first
+    print("^3[Casino] Sending initialize_app to client^0")
     TriggerClientEvent(Utils.Events.UPDATE_UI, source, {
         action = "initialize_app",
         config = {
