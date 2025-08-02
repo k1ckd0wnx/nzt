@@ -1,0 +1,219 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #0c1426 0%, #1a1f36 100%);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mantine-color-dark-7);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mantine-color-blue-6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mantine-color-blue-5);
+}
+
+/* Casino specific animations */
+.casino-app {
+  height: 100vh;
+  background: linear-gradient(135deg, #0c1426 0%, #1a1f36 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.casino-app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Slot machine animations */
+@keyframes spin {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-50px); }
+  50% { transform: translateY(-100px); }
+  75% { transform: translateY(-150px); }
+  100% { transform: translateY(-200px); }
+}
+
+.slot-reel {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.slot-reel.spinning {
+  animation: spin 1s ease-in-out;
+}
+
+/* Plinko animations */
+@keyframes plinko-drop {
+  0% { transform: translateY(-20px); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(500px); opacity: 0; }
+}
+
+.plinko-ball {
+  animation: plinko-drop 3s ease-in;
+}
+
+/* Mines game styles */
+.mines-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.mine-tile {
+  aspect-ratio: 1;
+  border: 2px solid var(--mantine-color-dark-4);
+  border-radius: 8px;
+  background: var(--mantine-color-dark-6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.mine-tile:hover {
+  border-color: var(--mantine-color-blue-6);
+  background: var(--mantine-color-dark-5);
+}
+
+.mine-tile.revealed {
+  background: var(--mantine-color-green-6);
+  border-color: var(--mantine-color-green-5);
+}
+
+.mine-tile.mine {
+  background: var(--mantine-color-red-6);
+  border-color: var(--mantine-color-red-5);
+}
+
+/* Aviator game styles */
+.aviator-chart {
+  background: linear-gradient(to bottom, rgba(43, 133, 227, 0.1) 0%, transparent 100%);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.aviator-line {
+  stroke: var(--mantine-color-blue-6);
+  stroke-width: 3;
+  fill: none;
+  filter: drop-shadow(0 0 6px rgba(43, 133, 227, 0.6));
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glow effects */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(43, 133, 227, 0.3);
+}
+
+.glow-green {
+  box-shadow: 0 0 20px rgba(64, 192, 87, 0.3);
+}
+
+.glow-red {
+  box-shadow: 0 0 20px rgba(250, 82, 82, 0.3);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(255, 212, 59, 0.3);
+}
+
+/* Button hover effects */
+.btn-casino {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-casino::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-casino:hover::before {
+  left: 100%;
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.loading-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Number counter animation */
+@keyframes countUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.count-up {
+  animation: countUp 0.5s ease-out;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .mines-grid {
+    max-width: 300px;
+    gap: 4px;
+  }
+  
+  .mine-tile {
+    font-size: 1rem;
+  }
+}
