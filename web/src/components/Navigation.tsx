@@ -14,7 +14,7 @@ import {
 } from '@mantine/core'
 import {
   IconHome,
-  IconSlot,
+  IconDeviceGamepad,
   IconCircle,
   IconBomb,
   IconTrendingUp,
@@ -36,7 +36,7 @@ interface NavItem {
 
 const navigationItems: NavItem[] = [
   { id: 'lobby', label: 'Lobby', icon: <IconHome size={20} />, color: 'blue' },
-  { id: 'slots', label: 'Slots', icon: <IconSlot size={20} />, color: 'grape' },
+  { id: 'slots', label: 'Slots', icon: <IconDeviceGamepad size={20} />, color: 'grape' },
   { id: 'plinko', label: 'Plinko', icon: <IconCircle size={20} />, color: 'orange' },
   { id: 'mines', label: 'Mines', icon: <IconBomb size={20} />, color: 'red' },
   { id: 'aviator', label: 'Aviator', icon: <IconTrendingUp size={20} />, color: 'green' },

@@ -1,11 +1,11 @@
 import { Container, Title, Text, Group } from '@mantine/core'
-import { IconSlot } from '@tabler/icons-react'
+import { IconDeviceGamepad } from '@tabler/icons-react'
 
 export function SlotsPage() {
   return (
     <Container size="xl" py="xl">
       <Group gap="sm" mb="xl">
-        <IconSlot size={32} />
+        <IconDeviceGamepad size={32} />
         <Title order={1} c="white" fw={700}>
           Slot Machines
         </Title>

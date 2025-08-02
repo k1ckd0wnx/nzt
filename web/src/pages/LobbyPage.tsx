@@ -17,7 +17,7 @@ import {
   Paper
 } from '@mantine/core'
 import {
-  IconSlot,
+  IconDeviceGamepad,
   IconCircle,
   IconBomb,
   IconTrendingUp,
@@ -26,7 +26,7 @@ import {
   IconFlame,
   IconChartLine,
   IconStar,
-  IconGamepad2
+  IconDeviceGamepad2
 } from '@tabler/icons-react'
 import { useAppStore } from '@/store/useAppStore'
 import { motion } from 'framer-motion'
@@ -60,7 +60,7 @@ export function LobbyPage() {
       id: 'slots',
       name: 'Slot Machines',
       description: '5 unique themed slots with jackpots',
-      icon: <IconSlot size={32} />,
+      icon: <IconDeviceGamepad size={32} />,
       minBet: config?.minBets.slots || 20,
       color: 'grape',
       gradient: { from: 'grape', to: 'pink' },
@@ -184,7 +184,7 @@ export function LobbyPage() {
             <Grid.Col span={{ base: 12, md: 8 }}>
               <Title order={2} c="white" mb="md" fw={600}>
                 <Group gap="sm">
-                  <IconGamepad2 size={28} />
+                  <IconDeviceGamepad2 size={28} />
                   Games
                 </Group>
               </Title>

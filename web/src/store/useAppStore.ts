@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { AppState, User, CasinoConfig, Transaction, UIUpdate } from '@/types'
 import { showNotification } from '@mantine/notifications'
-import { IconCheck, IconX, IconInfoCircle } from '@tabler/icons-react'
 
 interface AppStore extends AppState {
   // Actions
@@ -65,7 +64,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
         title: 'Error',
         message: error,
         color: 'red',
-        icon: <IconX size={16} />,
       })
     }
   },
@@ -102,7 +100,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
           title: 'Welcome!',
           message: `Logged in as ${update.user.username}`,
           color: 'green',
-          icon: <IconCheck size={16} />,
         })
         break
         
@@ -111,7 +108,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
           title: 'Success!',
           message: 'Account created successfully. You can now log in.',
           color: 'green',
-          icon: <IconCheck size={16} />,
         })
         break
         
@@ -125,7 +121,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
           title: 'Goodbye!',
           message: 'You have been logged out.',
           color: 'blue',
-          icon: <IconInfoCircle size={16} />,
         })
         break
         
@@ -154,7 +149,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
             title: 'Winner!',
             message: `You won $${update.outcome.payout.toFixed(2)}!`,
             color: 'green',
-            icon: <IconCheck size={16} />,
           })
         }
         if (user) {
@@ -169,7 +163,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
             title: 'Winner!',
             message: `You won $${update.outcome.payout.toFixed(2)}!`,
             color: 'green',
-            icon: <IconCheck size={16} />,
           })
         }
         if (user) {
@@ -191,7 +184,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
           title: 'Crashed!',
           message: `Multiplier crashed at ${update.crashMultiplier.toFixed(2)}x`,
           color: 'red',
-          icon: <IconX size={16} />,
         })
         break
         
