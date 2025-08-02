@@ -5,6 +5,13 @@ Config.CasinoName = "Premium Casino"
 Config.MinimumAge = 18
 Config.SessionTimeout = 30 * 60000 -- 30 minutes in milliseconds
 
+-- Localization Settings
+Config.Locale = 'en' -- Default language: 'en' = English, 'bg' = Bulgarian
+Config.AvailableLocales = {
+    ['en'] = 'English',
+    ['bg'] = 'Български'
+}
+
 -- Banking Bridge Configuration
 Config.BankingScript = "RxBanking" -- Change this to switch banking scripts
 Config.BankingExports = {

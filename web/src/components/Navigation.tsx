@@ -10,7 +10,8 @@ import {
   Indicator,
   Badge,
   Flex,
-  Paper
+  Paper,
+  Select
 } from '@mantine/core'
 import {
   IconHome,
@@ -22,9 +23,11 @@ import {
   IconReceipt,
   IconUser,
   IconLogout,
-  IconChevronDown
+  IconChevronDown,
+  IconLanguage
 } from '@tabler/icons-react'
 import { useAppStore } from '@/store/useAppStore'
+import { useLocale, AVAILABLE_LOCALES } from '@/hooks/useLocale'
 import { motion } from 'framer-motion'
 
 interface NavItem {
@@ -34,19 +37,23 @@ interface NavItem {
   color?: string
 }
 
-const navigationItems: NavItem[] = [
-  { id: 'lobby', label: 'Lobby', icon: <IconHome size={20} />, color: 'blue' },
-  { id: 'slots', label: 'Slots', icon: <IconDeviceGamepad size={20} />, color: 'grape' },
-  { id: 'plinko', label: 'Plinko', icon: <IconCircle size={20} />, color: 'orange' },
-  { id: 'mines', label: 'Mines', icon: <IconBomb size={20} />, color: 'red' },
-  { id: 'aviator', label: 'Aviator', icon: <IconTrendingUp size={20} />, color: 'green' },
-  { id: 'banking', label: 'Banking', icon: <IconWallet size={20} />, color: 'teal' },
-  { id: 'transactions', label: 'History', icon: <IconReceipt size={20} />, color: 'gray' },
-]
+
 
 const Navigation = memo(() => {
   const { user, currentPage, setCurrentPage, sendNUIMessage, config } = useAppStore()
+  const { t, locale, setLocale } = useLocale()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  // Create navigation items with translations
+  const navigationItems: NavItem[] = [
+    { id: 'lobby', label: t('nav.lobby'), icon: <IconHome size={20} />, color: 'blue' },
+    { id: 'slots', label: t('nav.slots'), icon: <IconDeviceGamepad size={20} />, color: 'grape' },
+    { id: 'plinko', label: t('nav.plinko'), icon: <IconCircle size={20} />, color: 'orange' },
+    { id: 'mines', label: t('nav.mines'), icon: <IconBomb size={20} />, color: 'red' },
+    { id: 'aviator', label: t('nav.aviator'), icon: <IconTrendingUp size={20} />, color: 'green' },
+    { id: 'banking', label: t('nav.banking'), icon: <IconWallet size={20} />, color: 'teal' },
+    { id: 'transactions', label: t('nav.transactions'), icon: <IconReceipt size={20} />, color: 'gray' },
+  ]
 
   const handleLogout = useCallback(async () => {
     try {
@@ -197,24 +204,43 @@ const Navigation = memo(() => {
             </Menu.Target>
 
             <Menu.Dropdown>
-              <Menu.Label>Account</Menu.Label>
+              <Menu.Label>{t('nav.account', 'Account')}</Menu.Label>
               <Menu.Item
                 leftSection={<IconUser size={16} />}
                 onClick={() => setCurrentPage('profile')}
               >
-                Profile
+                {t('nav.profile', 'Profile')}
               </Menu.Item>
               <Menu.Item
                 leftSection={<IconWallet size={16} />}
                 onClick={() => setCurrentPage('banking')}
               >
-                Banking
+                {t('nav.banking')}
               </Menu.Item>
               <Menu.Item
                 leftSection={<IconReceipt size={16} />}
                 onClick={() => setCurrentPage('transactions')}
               >
-                Transaction History
+                {t('nav.transactions')}
+              </Menu.Item>
+              
+              <Menu.Divider />
+              <Menu.Label>{t('ui.settings', 'Settings')}</Menu.Label>
+              <Menu.Item
+                leftSection={<IconLanguage size={16} />}
+                closeMenuOnClick={false}
+              >
+                <Select
+                  data={Object.entries(AVAILABLE_LOCALES).map(([key, label]) => ({
+                    value: key,
+                    label
+                  }))}
+                  value={locale}
+                  onChange={(value) => value && setLocale(value as any)}
+                  size="xs"
+                  placeholder="Language"
+                  style={{ width: '100%' }}
+                />
               </Menu.Item>
               
               <Menu.Divider />
@@ -224,7 +250,7 @@ const Navigation = memo(() => {
                 color="red"
                 onClick={handleLogout}
               >
-                Logout
+                {t('auth.logout')}
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>

@@ -5,6 +5,7 @@ import { Notifications } from '@mantine/notifications'
 // import { ModalsProvider } from '@mantine/modals'
 import App from './App'
 import { theme } from './theme'
+import { LocaleProvider } from './hooks/useLocale'
 
 // Import Mantine CSS
 import '@mantine/core/styles.css'
@@ -16,9 +17,11 @@ import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <MantineProvider theme={theme} defaultColorScheme="dark">
-      <Notifications position="top-right" />
-      <App />
-    </MantineProvider>
+    <LocaleProvider>
+      <MantineProvider theme={theme} defaultColorScheme="dark">
+        <Notifications position="top-right" />
+        <App />
+      </MantineProvider>
+    </LocaleProvider>
   </React.StrictMode>,
 )

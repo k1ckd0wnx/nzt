@@ -17,6 +17,7 @@ import {
 } from '@mantine/core'
 import { IconPlayerPlay, IconMinus, IconPlus, IconCoins, IconTrophy } from '@tabler/icons-react'
 import { useAppStore } from '@/store/useAppStore'
+import { useLocale } from '@/hooks/useLocale'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface Ball {
@@ -48,6 +49,7 @@ const CANVAS_HEIGHT = 600
 
 export function PlinkoPage() {
   const { user, sendNUIMessage } = useAppStore()
+  const { t } = useLocale()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationFrameRef = useRef<number>()
   
@@ -361,14 +363,14 @@ export function PlinkoPage() {
         <Group justify="space-between" align="center">
           <div>
             <Title order={2} c="white" fw={700}>
-              🔴 Plinko
+              🔴 {t('plinko.title')}
             </Title>
             <Text c="dimmed" size="sm">
-              Drop the ball and watch it bounce through the pegs!
+              {t('plinko.subtitle')}
             </Text>
           </div>
           <Group gap="md">
-            <Text c="dimmed" size="sm">Balance:</Text>
+            <Text c="dimmed" size="sm">{t('nav.balance')}:</Text>
             <Badge size="lg" color="blue" variant="filled">
               ${parseFloat(user.balance).toLocaleString()}
             </Badge>
@@ -381,7 +383,7 @@ export function PlinkoPage() {
             <Paper p="md" bg="dark.7" radius="md">
               <Stack gap="md">
                 <div>
-                  <Text size="sm" c="dimmed" mb="xs">Bet Amount</Text>
+                  <Text size="sm" c="dimmed" mb="xs">{t('games.bet_amount')}</Text>
                   <Group gap="xs">
                     <ActionIcon 
                       variant="filled" 
@@ -445,7 +447,7 @@ export function PlinkoPage() {
                   variant="gradient"
                   className="btn-casino"
                 >
-                  {isPlaying ? 'Dropping...' : 'Drop Ball'}
+                  {isPlaying ? t('plinko.dropping') : t('games.drop_ball')}
                 </Button>
 
                 {lastWin && (

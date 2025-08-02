@@ -96,6 +96,9 @@ CreateThread(function()
     end
     print("^2[Casino] Config loaded successfully!^0")
     
+    -- Initialize locale system
+    InitializeLocale()
+    
     -- Check if tables exist, create if not
     local result = MySQL.query.await('SHOW TABLES LIKE "casino_users"')
     if not result or #result == 0 then

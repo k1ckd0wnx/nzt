@@ -18,6 +18,7 @@ import {
 import { useForm } from '@mantine/form'
 import { IconLock, IconUser, IconAlertCircle, IconDice } from '@tabler/icons-react'
 import { useAppStore } from '@/store/useAppStore'
+import { useLocale } from '@/hooks/useLocale'
 import { motion } from 'framer-motion'
 
 interface LoginForm {
@@ -35,6 +36,7 @@ export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const { sendNUIMessage, error } = useAppStore()
+  const { t } = useLocale()
 
   const loginForm = useForm<LoginForm>({
     initialValues: {

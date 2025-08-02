@@ -28,7 +28,8 @@ files {
     'web/dist/assets/**/*',
     'casino-icon.svg',
     'dice.svg',
-    'assets/**/*'
+    'assets/**/*',
+    'locales/*.lua'
 }
 
 dependencies {
