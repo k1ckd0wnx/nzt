@@ -19,29 +19,50 @@ CreateThread(function()
     -- Additional wait to ensure fd_laptop is fully loaded
     Wait(2000)
 
-    local success, result = pcall(function()
-        return exports.fd_laptop:addCustomApp({
-            id = "casino",
-            name = "Premium Casino",
-            isDefaultApp = true,
-            needsUpdate = false,
-            icon = 'dice.svg',
-            ui = ("https://cfx-nui-%s/web/dist/index.html"):format(GetCurrentResourceName()),
-            keepAlive = true,
-            ignoreInternalLoading = true,
-            windowActions = {
-                isResizable = false,
-                isMaximizable = false,
-                isClosable = true,
-                isMinimizable = true,
-                isDraggable = false
-            },
-            windowDefaultStates = {
-                isMaximized = true,
-                isMinimized = false
-            },
-        })
-    end)
+    -- Try different icon paths - fd_laptop might be picky about icon paths
+    local iconPaths = {
+        ("nui://%s/assets/icon.svg"):format(GetCurrentResourceName()),
+        ("nui://%s/dice.svg"):format(GetCurrentResourceName()),
+        "dice.svg",
+        "assets/icon.svg",
+        ("https://cfx-nui-%s/dice.svg"):format(GetCurrentResourceName()),
+        ("https://cfx-nui-%s/assets/icon.svg"):format(GetCurrentResourceName())
+    }
+    
+    local success, result = false, nil
+    for i, iconPath in ipairs(iconPaths) do
+        success, result = pcall(function()
+            print(("^3[Casino] Trying icon path %d: %s^0"):format(i, iconPath))
+            return exports.fd_laptop:addCustomApp({
+                id = "casino",
+                name = "Premium Casino",
+                isDefaultApp = true,
+                needsUpdate = false,
+                icon = iconPath,
+                ui = ("https://cfx-nui-%s/web/dist/index.html"):format(GetCurrentResourceName()),
+                keepAlive = true,
+                ignoreInternalLoading = true,
+                windowActions = {
+                    isResizable = false,
+                    isMaximizable = false,
+                    isClosable = true,
+                    isMinimizable = true,
+                    isDraggable = false
+                },
+                windowDefaultStates = {
+                    isMaximized = true,
+                    isMinimized = false
+                },
+            })
+        end)
+        
+        if success and result then
+            print(("^2[Casino] Icon loaded successfully with path: %s^0"):format(iconPath))
+            break
+        else
+            print(("^1[Casino] Icon path %d failed: %s^0"):format(i, result or "unknown error"))
+        end
+    end
 
     if success and result then
         print("^2[Casino] Successfully registered with fd_laptop^0")

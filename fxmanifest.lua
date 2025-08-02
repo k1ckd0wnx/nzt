@@ -26,7 +26,8 @@ server_scripts {
 files {
     'web/dist/**/*',
     'web/dist/assets/**/*',
-    'dice.svg'
+    'dice.svg',
+    'assets/**/*'
 }
 
 dependencies {
