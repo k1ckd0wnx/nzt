@@ -1,0 +1,323 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  /* Performance optimizations */
+  will-change: auto;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+}
+
+/* Optimized scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mantine-color-dark-7);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0ea5e9;
+  border-radius: 3px;
+  transition: background 0.15s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+}
+
+/* Casino specific animations */
+.casino-app {
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  position: relative;
+  overflow: hidden;
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.casino-app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.025) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Slot machine animations */
+@keyframes spin {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-50px); }
+  50% { transform: translateY(-100px); }
+  75% { transform: translateY(-150px); }
+  100% { transform: translateY(-200px); }
+}
+
+.slot-reel {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.slot-reel.spinning {
+  animation: spin 1s ease-in-out;
+}
+
+/* Plinko animations */
+@keyframes plinko-drop {
+  0% { transform: translateY(-20px); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(500px); opacity: 0; }
+}
+
+.plinko-ball {
+  animation: plinko-drop 3s ease-in;
+}
+
+/* Mines game styles */
+.mines-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.mine-tile {
+  aspect-ratio: 1;
+  border: 2px solid var(--mantine-color-dark-4);
+  border-radius: 8px;
+  background: var(--mantine-color-dark-6);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.mine-tile:hover {
+  border-color: var(--mantine-color-blue-6);
+  background: var(--mantine-color-dark-5);
+  transform: translateZ(0) scale(1.02);
+}
+
+.mine-tile.revealed {
+  background: var(--mantine-color-green-6);
+  border-color: var(--mantine-color-green-5);
+}
+
+.mine-tile.mine {
+  background: var(--mantine-color-red-6);
+  border-color: var(--mantine-color-red-5);
+}
+
+/* Aviator game styles */
+.aviator-chart {
+  background: linear-gradient(to bottom, rgba(14, 165, 233, 0.1) 0%, transparent 100%);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.aviator-line {
+  stroke: #0ea5e9;
+  stroke-width: 3;
+  fill: none;
+  filter: drop-shadow(0 0 6px rgba(14, 165, 233, 0.6));
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glow effects - only blue and gray theme */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+}
+
+.glow-green {
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+}
+
+.glow-red {
+  box-shadow: 0 0 20px rgba(71, 85, 105, 0.3);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+}
+
+/* Optimized button hover effects */
+.btn-casino {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.btn-casino::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.3s ease;
+  will-change: left;
+}
+
+.btn-casino:hover {
+  transform: translateZ(0) translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-casino:hover::before {
+  left: 100%;
+}
+
+.btn-casino:active {
+  transform: translateZ(0) translateY(0);
+}
+
+/* Optimized loading animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.loading-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+  will-change: opacity;
+}
+
+/* Ultra-fast GPU-accelerated transitions */
+@keyframes slideInFromRight {
+  0% { 
+    transform: translate3d(100%, 0, 0); 
+    opacity: 0; 
+  }
+  100% { 
+    transform: translate3d(0, 0, 0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% { 
+    transform: translate3d(-100%, 0, 0); 
+    opacity: 0; 
+  }
+  100% { 
+    transform: translate3d(0, 0, 0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes fadeInUp {
+  0% { 
+    transform: translate3d(0, 15px, 0); 
+    opacity: 0; 
+  }
+  100% { 
+    transform: translate3d(0, 0, 0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes scaleIn {
+  0% { 
+    transform: scale3d(0.95, 0.95, 1); 
+    opacity: 0; 
+  }
+  100% { 
+    transform: scale3d(1, 1, 1); 
+    opacity: 1; 
+  }
+}
+
+/* Optimized animation classes */
+.slide-in-right {
+  animation: slideInFromRight 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+.slide-in-left {
+  animation: slideInFromLeft 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+.scale-in {
+  animation: scaleIn 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
+  transform: scale3d(1, 1, 1);
+}
+
+/* Number counter animation */
+@keyframes countUp {
+  from { transform: translateY(15px) translateZ(0); opacity: 0; }
+  to { transform: translateY(0) translateZ(0); opacity: 1; }
+}
+
+.count-up {
+  animation: countUp 0.3s ease-out;
+  will-change: transform, opacity;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .mines-grid {
+    max-width: 300px;
+    gap: 4px;
+  }
+  
+  .mine-tile {
+    font-size: 1rem;
+  }
+}
