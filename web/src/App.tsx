@@ -1,16 +1,18 @@
-import { useEffect } from 'react'
+import { useEffect, memo, lazy, Suspense } from 'react'
 import { Container, LoadingOverlay, Center, Text, Loader } from '@mantine/core'
 import { useAppStore } from '@/store/useAppStore'
-import { AuthPage } from '@/pages/AuthPage'
-import { LobbyPage } from '@/pages/LobbyPage'
-import { SlotsPage } from '@/pages/SlotsPage'
-import { PlinkoPage } from '@/pages/PlinkoPage'
-import { MinesPage } from '@/pages/MinesPage'
-import { AviatorPage } from '@/pages/AviatorPage'
-import { BankingPage } from '@/pages/BankingPage'
-import { TransactionsPage } from '@/pages/TransactionsPage'
 import { Navigation } from '@/components/Navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+
+// Lazy load pages for better performance
+const AuthPage = lazy(() => import('@/pages/AuthPage').then(module => ({ default: module.AuthPage })))
+const LobbyPage = lazy(() => import('@/pages/LobbyPage').then(module => ({ default: module.LobbyPage })))
+const SlotsPage = lazy(() => import('@/pages/SlotsPage').then(module => ({ default: module.SlotsPage })))
+const PlinkoPage = lazy(() => import('@/pages/PlinkoPage').then(module => ({ default: module.PlinkoPage })))
+const MinesPage = lazy(() => import('@/pages/MinesPage').then(module => ({ default: module.MinesPage })))
+const AviatorPage = lazy(() => import('@/pages/AviatorPage').then(module => ({ default: module.AviatorPage })))
+const BankingPage = lazy(() => import('@/pages/BankingPage').then(module => ({ default: module.BankingPage })))
+const TransactionsPage = lazy(() => import('@/pages/TransactionsPage').then(module => ({ default: module.TransactionsPage })))
 
 function App() {
   const { 
@@ -132,11 +134,31 @@ function App() {
     )
   }
 
+  // Loading fallback component
+  const PageLoader = () => (
+    <Center h="100vh">
+      <div style={{ textAlign: 'center' }}>
+        <Loader size="md" color="blue" />
+        <Text mt="md" size="sm" c="dimmed">Loading...</Text>
+      </div>
+    </Center>
+  )
+
   // Show auth page if not logged in
   if (!user) {
     return (
       <div className="casino-app">
-        <AuthPage />
+        <Suspense fallback={<PageLoader />}>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="fade-in-up"
+          >
+            <AuthPage />
+          </motion.div>
+        </Suspense>
       </div>
     )
   }
@@ -172,13 +194,16 @@ function App() {
           <AnimatePresence mode="wait">
             <motion.div
               key={currentPage}
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 15 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, x: -15 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
               style={{ height: '100%', overflow: 'auto' }}
+              className="scale-in"
             >
-              <CurrentPageComponent />
+              <Suspense fallback={<PageLoader />}>
+                <CurrentPageComponent />
+              </Suspense>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -187,4 +212,4 @@ function App() {
   )
 }
 
-export default App
+export default memo(App)

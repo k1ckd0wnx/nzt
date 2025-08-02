@@ -94,18 +94,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
   
   initialize: (data) => {
-    console.log('Initialize called with data:', data)
-    console.log('Config received:', data.config)
-    console.log('User received:', data.user)
-    
-    // Send debug info to client
-    sendNUIMessage('debugMessage', {
-      type: 'initializeCalled',
-      data: data,
-      hasConfig: !!data.config,
-      hasUser: !!data.user,
-      timestamp: Date.now()
-    })
+    console.log('Initializing app...', { hasConfig: !!data.config, hasUser: !!data.user })
     
     set({
       config: data.config,
@@ -113,24 +102,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
       isInitialized: true,
       currentPage: data.user ? 'lobby' : 'auth',
     })
-    console.log('App state after initialize:', { 
-      isInitialized: true, 
-      hasConfig: !!data.config, 
-      hasUser: !!data.user,
-      currentPage: data.user ? 'lobby' : 'auth'
-    })
     
-    // Send final state to client
-    sendNUIMessage('debugMessage', {
-      type: 'initializeComplete',
-      state: {
-        isInitialized: true,
-        hasConfig: !!data.config,
-        hasUser: !!data.user,
-        currentPage: data.user ? 'lobby' : 'auth'
-      },
-      timestamp: Date.now()
-    })
+    console.log('App initialized successfully')
   },
   
   setTransactions: (transactions) => set({ transactions }),
@@ -283,18 +256,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
 // NUI Event Listener Setup
 if (typeof window !== 'undefined') {
   window.addEventListener('message', (event) => {
-    console.log('Raw NUI message received:', event.data)
-    console.log('Event data type:', typeof event.data)
-    console.log('Event data string:', JSON.stringify(event.data))
-    
-    // Send debug info to client
-    sendNUIMessage('debugMessage', {
-      type: 'messageReceived',
-      eventData: event.data,
-      eventDataType: typeof event.data,
-      eventDataString: JSON.stringify(event.data),
-      timestamp: Date.now()
-    })
+    // Reduced debugging for better performance
+    console.log('NUI message:', event.data?.action || event.data?.type || 'unknown')
     
     // Handle different data formats
     let messageData = event.data

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo, useCallback } from 'react'
 import {
   Group,
   Text,
@@ -44,26 +44,30 @@ const navigationItems: NavItem[] = [
   { id: 'transactions', label: 'History', icon: <IconReceipt size={20} />, color: 'gray' },
 ]
 
-export function Navigation() {
+const Navigation = memo(() => {
   const { user, currentPage, setCurrentPage, sendNUIMessage, config } = useAppStore()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await sendNUIMessage('logout')
     } catch (error) {
       console.error('Logout failed:', error)
     }
-  }
+  }, [sendNUIMessage])
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = useCallback((amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount)
-  }
+  }, [])
+
+  const handleNavigation = useCallback((page: string) => {
+    setCurrentPage(page)
+  }, [setCurrentPage])
 
   return (
     <Paper
@@ -250,4 +254,8 @@ export function Navigation() {
       </Group>
     </Paper>
   )
-}
+})
+
+Navigation.displayName = 'Navigation'
+
+export { Navigation }
