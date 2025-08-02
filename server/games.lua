@@ -1,12 +1,26 @@
 -- Premium Casino Games Server Engine
 -- All game logic runs server-side for security and validation
 
+-- Wait for Config to be available
+CreateThread(function()
+    while not Config do
+        Wait(100)
+    end
+    print("^2[Casino] Game engine initialized with config^0")
+end)
+
 local GameEngine = {}
 
 -- Slot Machine Engine
 GameEngine.Slots = {}
 
 function GameEngine.Slots.generateOutcome(machineType, betAmount)
+    -- Safety check for Config availability
+    if not Config or not Config.SlotMachines or not Config.RTP then
+        print("^1[Casino] Config not available for slot machine^0")
+        return nil
+    end
+    
     local config = Config.SlotMachines[machineType]
     if not config then return nil end
     
@@ -99,6 +113,12 @@ end
 GameEngine.Plinko = {}
 
 function GameEngine.Plinko.simulateDrop(betAmount)
+    -- Safety check for Config availability
+    if not Config or not Config.Plinko or not Config.RTP then
+        print("^1[Casino] Config not available for Plinko game^0")
+        return { finalPosition = 1, multiplier = 0, payout = 0, path = {} }
+    end
+    
     local config = Config.Plinko
     local rtp = Config.RTP.plinko
     
@@ -154,6 +174,12 @@ end
 GameEngine.Mines = {}
 
 function GameEngine.Mines.createGame(betAmount, mineCount)
+    -- Safety check for Config availability
+    if not Config or not Config.Mines then
+        print("^1[Casino] Config not available for Mines game^0")
+        return nil
+    end
+    
     local config = Config.Mines
     
     if mineCount < 1 or mineCount >= config.gridSize then
@@ -200,8 +226,8 @@ function GameEngine.Mines.revealTile(gameSession, position)
         -- Safe tile
         gameSession.revealedSafe = gameSession.revealedSafe + 1
         
-        local config = Config.Mines
-        local multiplier = config.multipliers[gameSession.revealedSafe] or 1.0
+        local config = Config and Config.Mines
+        local multiplier = (config and config.multipliers and config.multipliers[gameSession.revealedSafe]) or 1.0
         local currentPayout = gameSession.betAmount * multiplier
         
         return {
@@ -220,12 +246,12 @@ function GameEngine.Mines.cashOut(gameSession)
         return { success = false, reason = "Cannot cash out" }
     end
     
-    local config = Config.Mines
-    local multiplier = config.multipliers[gameSession.revealedSafe] or 1.0
+    local config = Config and Config.Mines
+    local multiplier = (config and config.multipliers and config.multipliers[gameSession.revealedSafe]) or 1.0
     local payout = gameSession.betAmount * multiplier
     
     -- Apply RTP check
-    local rtp = Config.RTP.mines
+    local rtp = (Config and Config.RTP and Config.RTP.mines) or 0.97
     local winProbability = Utils.calculateWinProbability(rtp, gameSession.betAmount, payout)
     local randomChance = Utils.generateSecureRandom()
     
@@ -258,6 +284,12 @@ local aviatorState = {
 function GameEngine.Aviator.startRound()
     if aviatorState.isActive then return false end
     
+    -- Safety check for Config availability
+    if not Config or not Config.Aviator or not Config.RTP then
+        print("^1[Casino] Config not available for Aviator game^0")
+        return false
+    end
+    
     local config = Config.Aviator
     aviatorState.isActive = true
     aviatorState.currentMultiplier = 1.0
@@ -288,7 +320,10 @@ function GameEngine.Aviator.placeBet(userId, betAmount, autoCashOut)
         return { success = false, reason = "Cannot place bet now" }
     end
     
-    local config = Config.Aviator
+    local config = Config and Config.Aviator
+    if not config then
+        return { success = false, reason = "Game configuration not available" }
+    end
     
     if autoCashOut and autoCashOut > config.autoCashoutMax then
         autoCashOut = config.autoCashoutMax
@@ -322,6 +357,11 @@ end
 
 function GameEngine.Aviator.updateRound()
     if not aviatorState.isActive or aviatorState.crashed then return end
+    
+    -- Safety check for Config availability
+    if not Config or not Config.Aviator then
+        return { crashed = true, crashMultiplier = 1.0 }
+    end
     
     local config = Config.Aviator
     local elapsed = GetGameTimer() - aviatorState.startTime
@@ -703,6 +743,14 @@ end)
 
 -- Initialize Aviator rounds
 CreateThread(function()
+    -- Wait for Config to be available before starting
+    while not Config or not Config.Aviator do
+        Wait(1000)
+        print("^3[Casino] Waiting for Config to initialize Aviator...^0")
+    end
+    
+    print("^2[Casino] Aviator game thread started^0")
+    
     while true do
         if not aviatorState.isActive then
             Wait(5000) -- Wait 5 seconds between rounds
@@ -742,7 +790,7 @@ CreateThread(function()
             end
         end
         
-        Wait(Config.Aviator.updateInterval)
+        Wait(Config and Config.Aviator and Config.Aviator.updateInterval or 100)
     end
 end)
 
