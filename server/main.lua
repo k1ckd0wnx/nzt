@@ -14,6 +14,13 @@ local CasinoServer = {
 CreateThread(function()
     Wait(1000) -- Wait for MySQL to be ready
     
+    -- Wait for Config to be available
+    while not Config do
+        print("^3[Casino] Waiting for Config to load...^0")
+        Wait(1000)
+    end
+    print("^2[Casino] Config loaded successfully!^0")
+    
     -- Check if tables exist, create if not
     local result = MySQL.query.await('SHOW TABLES LIKE "casino_users"')
     if not result or #result == 0 then
@@ -23,9 +30,12 @@ CreateThread(function()
     end
     
     -- Clean up expired sessions every 5 minutes
-    SetInterval(function()
-        CasinoServer.cleanupExpiredSessions()
-    end, 300000)
+    CreateThread(function()
+        while true do
+            Wait(300000) -- 5 minutes
+            CasinoServer.cleanupExpiredSessions()
+        end
+    end)
 end)
 
 -- Banking Bridge Functions
