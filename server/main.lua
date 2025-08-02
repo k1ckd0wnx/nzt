@@ -485,6 +485,10 @@ RegisterNetEvent(Utils.Events.LOGIN, function(username, password)
         username = user.username 
     })
     
+    print("^2[Casino] Sending login_success to client: " .. source .. "^0")
+    print("^3[Casino] Utils.Events.UPDATE_UI = " .. tostring(Utils.Events.UPDATE_UI) .. "^0")
+    
+    -- Send using both the Utils event name and direct event name as fallback
     TriggerClientEvent(Utils.Events.UPDATE_UI, source, { 
         action = "login_success",
         user = {
@@ -494,6 +498,19 @@ RegisterNetEvent(Utils.Events.LOGIN, function(username, password)
             sessionToken = sessionToken
         }
     })
+    
+    -- Fallback direct event
+    TriggerClientEvent("casino:updateUI", source, { 
+        action = "login_success",
+        user = {
+            id = user.id,
+            username = user.username,
+            balance = user.balance,
+            sessionToken = sessionToken
+        }
+    })
+    
+    print("^2[Casino] login_success events sent^0")
 end)
 
 RegisterNetEvent(Utils.Events.DEPOSIT, function(amount, sessionToken)

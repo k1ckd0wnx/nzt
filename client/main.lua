@@ -13,7 +13,8 @@ end)
 
 -- App initialization is now handled by React component
 
-RegisterNetEvent(Utils.Events.UPDATE_UI, function(data)
+-- Function to handle UI updates
+local function handleUIUpdate(data)
     print("^3[Casino] UPDATE_UI received with action: " .. (data.action or "no action") .. "^0")
     
     -- Always send to NUI - React app will handle appropriately
@@ -25,6 +26,7 @@ RegisterNetEvent(Utils.Events.UPDATE_UI, function(data)
     -- Store important data for when app reopens
     if data.action == "login_success" then
         nuiData.user = data.user
+        print("^2[Casino] Stored user data for " .. data.user.username .. "^0")
     elseif data.action == "balance_updated" then
         if nuiData.user then
             nuiData.user.balance = data.balance
@@ -33,6 +35,15 @@ RegisterNetEvent(Utils.Events.UPDATE_UI, function(data)
         -- Force app to be marked as open when initialization happens
         isAppOpen = true
     end
+end
+
+-- Register for Utils.Events.UPDATE_UI
+RegisterNetEvent(Utils.Events.UPDATE_UI, handleUIUpdate)
+
+-- Register for direct event as fallback
+RegisterNetEvent("casino:updateUI", function(data)
+    print("^3[Casino] Direct casino:updateUI received^0")
+    handleUIUpdate(data)
 end)
 
 -- Functions
