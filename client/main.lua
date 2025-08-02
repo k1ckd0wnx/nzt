@@ -83,12 +83,10 @@ function openCasinoApp()
         }
     })
     
-    print("^2[Casino] Casino app opened^0")
     
     -- Backup initialization - trigger server after a short delay
     CreateThread(function()
         Wait(1500) -- Wait 1.5 seconds for React to load
-        print("^3[Casino] Triggering backup server initialization^0")
         TriggerServerEvent("casino:initializeApp")
     end)
 end
@@ -103,7 +101,6 @@ function closeCasinoApp()
         type = "closeApp"
     })
     
-    print("^3[Casino] Casino app closed^0")
 end
 
 -- NUI Callbacks
@@ -137,7 +134,6 @@ RegisterNUICallback("appLoaded", function(data, cb)
 end)
 
 RegisterNUICallback("debugMessage", function(data, cb)
-    print("^3[Casino] DEBUG from React: " .. json.encode(data) .. "^0")
     cb("ok")
 end)
 
@@ -177,7 +173,6 @@ RegisterNUICallback("login", function(data, cb)
         return
     end
     
-    print("^3[Casino] Client sending login request to server^0")
     
     -- Store callback for direct response
     pendingLoginCallback = cb
@@ -364,11 +359,9 @@ end, false)
 
 -- Export for fd_laptop (this will be called by fd_laptop when app is opened)
 exports('openApp', function(source)
-    print("^2[Casino] openApp export called by fd_laptop^0")
     openCasinoApp()
     
     -- Also trigger server initialization immediately
     TriggerServerEvent("casino:initializeApp")
 end)
 
-print("^2[Casino] Client initialized successfully!^0")

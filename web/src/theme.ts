@@ -1,31 +1,31 @@
 import { createTheme, MantineColorsTuple } from '@mantine/core'
 
-// Casino Blue Palette - Clean blues from light to dark
+// Casino Blue Palette - Softer blues for easier viewing
 const blue: MantineColorsTuple = [
   '#f0f9ff',  // Very light blue
   '#e0f2fe',  // Light blue
   '#bae6fd',  // Lighter blue
   '#7dd3fc',  // Light blue
   '#38bdf8',  // Medium blue
-  '#0ea5e9',  // Primary blue
+  '#0ea5e9',  // Primary blue (softer)
   '#0284c7',  // Darker blue
   '#0369a1',  // Dark blue
   '#075985',  // Darker blue
-  '#0c4a6e'   // Very dark blue
+  '#1e3a5f'   // Softer dark blue
 ]
 
-// Casino Dark Gray Palette - Clean grays from light to dark
+// Casino Dark Gray Palette - Warmer grays to reduce eye strain
 const darkGray: MantineColorsTuple = [
-  '#f8fafc',  // Almost white
-  '#f1f5f9',  // Very light gray
-  '#e2e8f0',  // Light gray
-  '#cbd5e1',  // Medium light gray
-  '#94a3b8',  // Medium gray
-  '#64748b',  // Medium dark gray
-  '#475569',  // Dark gray
-  '#334155',  // Darker gray
-  '#1e293b',  // Very dark gray
-  '#0f172a'   // Almost black
+  '#fafafa',  // Warmer white
+  '#f5f5f5',  // Warmer light gray
+  '#e8e8e8',  // Warmer light gray
+  '#d4d4d4',  // Warmer medium light gray
+  '#a3a3a3',  // Warmer medium gray
+  '#737373',  // Warmer medium dark gray
+  '#525252',  // Warmer dark gray
+  '#404040',  // Warmer darker gray
+  '#262626',  // Warmer very dark gray
+  '#171717'   // Warmer almost black
 ]
 
 export const theme = createTheme({

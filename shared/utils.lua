@@ -18,11 +18,12 @@ end
 -- Generate a secure hash for sessions/transactions
 function Utils.generateHash(data)
     local hash = ""
-    local time = os.time()
+    local time = GetGameTimer() -- Use game timer for more precision
     local random = Utils.generateRandomString(16)
+    local microseconds = math.random(100000, 999999) -- Add microseconds
     
     -- Simple hash function (in production, use proper crypto)
-    local combined = tostring(data) .. tostring(time) .. random
+    local combined = tostring(data) .. tostring(time) .. tostring(microseconds) .. random
     
     for i = 1, #combined do
         local byte = string.byte(combined, i)

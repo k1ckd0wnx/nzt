@@ -136,11 +136,11 @@ export function BankingPage() {
             <Title order={1} c="white" fw={700} mb="xs">
               <Group gap="sm">
                 <IconWallet size={32} />
-                Banking
+                {isInitialized ? t('banking.title') : 'Banking'}
               </Group>
             </Title>
             <Text size="lg" c="gray.4">
-              Manage your casino balance with secure deposits and withdrawals.
+              {isInitialized ? t('banking.description') : 'Manage your casino balance with secure deposits and withdrawals.'}
             </Text>
           </div>
 
@@ -157,7 +157,7 @@ export function BankingPage() {
             <Group justify="space-between" align="center">
               <div>
                 <Text size="sm" c="gray.4" fw={500} tt="uppercase" mb="xs">
-                  Casino Balance
+                  {isInitialized ? t('banking.casino_balance') : 'Casino Balance'}
                 </Text>
                 <Title order={1} c="white" fw={700} className="count-up">
                   {formatCurrency(user?.balance || 0)}
@@ -225,13 +225,13 @@ export function BankingPage() {
                             </Group>
                           </Title>
                           <Text c="gray.4" mb="lg">
-                            Transfer money from your bank account to your casino balance.
+                            {isInitialized ? t('banking.deposit_description') : 'Transfer money from your bank account to your casino balance.'}
                           </Text>
                         </div>
 
                         <NumberInput
-                          label="Deposit Amount"
-                          placeholder="Enter amount to deposit"
+                          label={isInitialized ? t('banking.deposit_amount') : 'Deposit Amount'}
+                          placeholder={isInitialized ? t('banking.placeholder_amount') : 'Enter amount to deposit'}
                           min={1}
                           max={100000}
                           size="lg"
@@ -289,13 +289,13 @@ export function BankingPage() {
                             </Group>
                           </Title>
                           <Text c="gray.4" mb="lg">
-                            Transfer money from your casino balance to your bank account.
+                            {isInitialized ? t('banking.withdraw_description') : 'Transfer money from your casino balance to your bank account.'}
                           </Text>
                         </div>
 
                         <NumberInput
-                          label="Withdrawal Amount"
-                          placeholder="Enter amount to withdraw"
+                          label={isInitialized ? t('banking.withdraw_amount') : 'Withdrawal Amount'}
+                          placeholder={isInitialized ? t('banking.placeholder_amount') : 'Enter amount to withdraw'}
                           min={1}
                           max={user?.balance || 0}
                           size="lg"

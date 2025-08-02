@@ -36,7 +36,6 @@ CreateThread(function()
     
     for i, iconPath in ipairs(iconPaths) do
         success, result = pcall(function()
-            print(("^3[Casino] Trying to register with icon path %d: %s^0"):format(i, iconPath))
             
             local appData = {
                 id = "casino",
@@ -70,18 +69,13 @@ CreateThread(function()
         end)
         
         if success and result then
-            print(("^2[Casino] Successfully registered with icon path: %s^0"):format(iconPath))
             break
         else
-            print(("^1[Casino] Icon path %d failed: %s^0"):format(i, result or "unknown error"))
         end
     end
 
     if success and result then
-        print("^2[Casino] Successfully registered with fd_laptop^0")
     else
-        print("^1[Casino] Could not add casino app: " .. (result or "unknown error") .. "^0")
-        print("^3[Casino] Make sure fd_laptop is properly installed and running^0")
     end
 end)
 
@@ -91,10 +85,8 @@ CreateThread(function()
     
     -- Wait for Config to be available
     while not Config do
-        print("^3[Casino] Waiting for Config to load...^0")
         Wait(1000)
     end
-    print("^2[Casino] Config loaded successfully!^0")
     
     -- Initialize locale system
     InitializeLocale()
@@ -102,9 +94,7 @@ CreateThread(function()
     -- Check if tables exist, create if not
     local result = MySQL.query.await('SHOW TABLES LIKE "casino_users"')
     if not result or #result == 0 then
-        print("^3[Casino] Database tables not found. Please run install.sql to set up the database.^0")
     else
-        print("^2[Casino] Database connection established successfully.^0")
         
         -- Auto-migration: Remove email column if it exists (backwards compatibility)
         local emailColExists = MySQL.query.await([[
@@ -116,24 +106,20 @@ CreateThread(function()
         ]])
         
         if emailColExists and emailColExists[1] and emailColExists[1].count > 0 then
-            print("^3[Casino] Removing deprecated email column from casino_users table...^0")
             local success, err = pcall(function()
                 MySQL.query.await('ALTER TABLE casino_users DROP COLUMN email')
             end)
             
             if success then
-                print("^2[Casino] Email column removed successfully (migration complete).^0")
             else
-                print("^1[Casino] Failed to remove email column: " .. tostring(err) .. "^0")
-                print("^3[Casino] Please manually run: ALTER TABLE casino_users DROP COLUMN email^0")
             end
         end
     end
     
-    -- Clean up expired sessions every 5 minutes
+    -- Clean up expired sessions every 10 minutes
     CreateThread(function()
         while true do
-            Wait(300000) -- 5 minutes
+            Wait(600000) -- 10 minutes
             CasinoServer.cleanupExpiredSessions()
         end
     end)
@@ -145,7 +131,6 @@ local function getBankingInterface()
     local interface = Config.BankingExports[bankingScript]
     
     if not interface then
-        print("^1[Casino] Banking script '" .. bankingScript .. "' not configured!^0")
         return nil
     end
     
@@ -220,7 +205,6 @@ function logAction(source, action, category, level, message, data)
     
     -- Also print to server console for immediate visibility
     local logColor = level == "error" and "^1" or level == "warning" and "^3" or "^2"
-    print(logColor .. "[Casino:" .. category .. "] " .. message .. "^0")
 end
 
 -- User Management Functions
@@ -237,7 +221,6 @@ end
 local function createUser(citizenid, username, password)
     local passwordHash = hashPassword(password)
     
-    print("^3[Casino] Creating user: " .. username .. " with hash: " .. passwordHash .. "^0")
     
     local result = MySQL.insert.await('INSERT INTO casino_users (citizenid, username, password_hash) VALUES (?, ?, ?)', {
         citizenid,
@@ -251,7 +234,6 @@ end
 local function authenticateUser(username, password)
     local passwordHash = hashPassword(password)
     
-    print("^3[Casino] Login attempt - Username: " .. username .. " with hash: " .. passwordHash .. "^0")
     
     local result = MySQL.query.await('SELECT * FROM casino_users WHERE username = ? AND password_hash = ? AND is_active = TRUE', {
         username,
@@ -259,10 +241,8 @@ local function authenticateUser(username, password)
     })
     
     if result and #result > 0 then
-        print("^2[Casino] Login successful for user: " .. username .. "^0")
         return result[1]
     else
-        print("^1[Casino] Login failed for user: " .. username .. " - no matching record found^0")
     end
     
     return nil
@@ -380,7 +360,6 @@ function CasinoServer.cleanupExpiredSessions()
     end
     
     if #expired > 0 then
-        print("^3[Casino] Cleaned up " .. #expired .. " expired sessions^0")
     end
 end
 
@@ -393,7 +372,6 @@ function openApp(source)
     logAction(source, "app_opened", "system", "info", "Player opened casino app", { citizenid = citizenid })
     
     -- Send initial app configuration first with immediate initialization
-    print("^3[Casino] Sending initialize_app to client^0")
     
     -- Send initialization data that the React app expects
     local initData = {
@@ -416,7 +394,6 @@ function openApp(source)
         user = initData.user,
         events = initData.events
     }
-    print("^3[Casino] Sending initializeApp message: " .. json.encode(initMessage) .. "^0")
     TriggerClientEvent(Utils.Events.UPDATE_UI, source, initMessage)
     
     -- Check if user exists and send appropriate data
@@ -434,12 +411,10 @@ function openApp(source)
                 sessionToken = sessionToken
             }
         }
-        print("^3[Casino] Sending login_success message: " .. json.encode(loginMessage) .. "^0")
         TriggerClientEvent(Utils.Events.UPDATE_UI, source, loginMessage)
     else
         -- New user, show auth page
         local authMessage = { action = "show_auth" }
-        print("^3[Casino] Sending show_auth message: " .. json.encode(authMessage) .. "^0")
         TriggerClientEvent(Utils.Events.UPDATE_UI, source, authMessage)
     end
 end
@@ -533,7 +508,6 @@ RegisterNetEvent(Utils.Events.LOGIN, function(username, password)
         username = user.username 
     })
     
-    print("^2[Casino] Sending login_success to client: " .. source .. "^0")
     
     -- Send only one event to avoid duplicates
     TriggerClientEvent(Utils.Events.UPDATE_UI, source, { 
@@ -546,7 +520,6 @@ RegisterNetEvent(Utils.Events.LOGIN, function(username, password)
         }
     })
     
-    print("^2[Casino] login_success event sent^0")
 end)
 
 RegisterNetEvent(Utils.Events.DEPOSIT, function(amount, sessionToken)
@@ -709,4 +682,3 @@ end)
 -- Export the main function
 exports('openApp', openApp)
 
-print("^2[Casino] Server initialized successfully!^0")

@@ -6,7 +6,6 @@ CreateThread(function()
     while not Config do
         Wait(100)
     end
-    print("^2[Casino] Game engine initialized with config^0")
 end)
 
 local GameEngine = {}
@@ -17,7 +16,6 @@ GameEngine.Slots = {}
 function GameEngine.Slots.generateOutcome(machineType, betAmount)
     -- Safety check for Config availability
     if not Config or not Config.SlotMachines or not Config.RTP then
-        print("^1[Casino] Config not available for slot machine^0")
         return nil
     end
     
@@ -115,7 +113,6 @@ GameEngine.Plinko = {}
 function GameEngine.Plinko.simulateDrop(betAmount)
     -- Safety check for Config availability
     if not Config or not Config.Plinko or not Config.RTP then
-        print("^1[Casino] Config not available for Plinko game^0")
         return { finalPosition = 1, multiplier = 0, payout = 0, path = {} }
     end
     
@@ -243,7 +240,6 @@ GameEngine.Mines = {}
 function GameEngine.Mines.createGame(betAmount, mineCount)
     -- Safety check for Config availability
     if not Config or not Config.Mines then
-        print("^1[Casino] Config not available for Mines game^0")
         return nil
     end
     
@@ -353,7 +349,6 @@ function GameEngine.Aviator.startRound()
     
     -- Safety check for Config availability
     if not Config or not Config.Aviator or not Config.RTP then
-        print("^1[Casino] Config not available for Aviator game^0")
         return false
     end
     
@@ -837,10 +832,8 @@ CreateThread(function()
     -- Wait for Config to be available before starting
     while not Config or not Config.Aviator do
         Wait(1000)
-        print("^3[Casino] Waiting for Config to initialize Aviator...^0")
     end
     
-    print("^2[Casino] Aviator game thread started^0")
     
     while true do
         if not aviatorState.isActive then

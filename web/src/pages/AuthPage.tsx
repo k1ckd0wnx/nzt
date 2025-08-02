@@ -161,7 +161,7 @@ export function AuthPage() {
                     Premium Casino
                   </Title>
                   <Text size="sm" c="gray.4">
-                    Your premium gaming destination
+                    {isInitialized ? t('auth.gaming_destination') : 'Your premium gaming destination'}
                   </Text>
                 </div>
               </Group>
@@ -257,8 +257,8 @@ export function AuthPage() {
                   />
 
                   <PasswordInput
-                    label="Confirm Password"
-                    placeholder="Confirm your password"
+                    label={isInitialized ? t('auth.confirm_password') : 'Confirm Password'}
+                    placeholder={isInitialized ? t('auth.confirm_password_placeholder') : 'Confirm your password'}
                     leftSection={<IconLock size={16} />}
                     required
                     {...registerForm.getInputProps('confirmPassword')}
@@ -283,7 +283,10 @@ export function AuthPage() {
           {/* Footer */}
           <Center>
             <Text size="xs" c="gray.5">
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              {isLogin ? 
+                (isInitialized ? t('auth.switch_account_question') : "Don't have an account? ") : 
+                (isInitialized ? t('auth.switch_login_question') : "Already have an account? ")
+              }
               <Anchor
                 component="button"
                 type="button"

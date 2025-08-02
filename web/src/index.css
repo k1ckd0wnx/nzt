@@ -54,7 +54,7 @@ body {
 /* Casino specific animations */
 .casino-app {
   height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   position: relative;
   overflow: hidden;
   /* Hardware acceleration */
@@ -71,8 +71,8 @@ body {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.025) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
   pointer-events: none;
 }

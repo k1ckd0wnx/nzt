@@ -20,52 +20,40 @@ Config.BankingExports = {
             -- Get player identifier for RxBanking
             local player = QBCore.Functions.GetPlayer(source)
             if not player then 
-                print("^1[Casino] No QBCore player found for source: " .. source .. "^0")
                 return 0 
             end
             
             local identifier = player.PlayerData.citizenid
-            print("^3[Casino] Getting balance for citizen ID: " .. identifier .. "^0")
+            -- Removed debug prints for performance
             
             local success, account = pcall(function()
                 return exports['RxBanking']:GetPlayerPersonalAccount(identifier)
             end)
             
-            if not success then
-                print("^1[Casino] Error calling GetPlayerPersonalAccount: " .. tostring(account) .. "^0")
-                return 0
-            end
-            
-            if not account then
-                print("^1[Casino] No personal account found for citizen ID: " .. identifier .. "^0")
+            if not success or not account then
                 return 0
             end
             
             local balance = tonumber(account.balance) or 0
-            print("^2[Casino] Retrieved balance: $" .. balance .. " for citizen ID: " .. identifier .. "^0")
             return balance
         end,
         removeMoney = function(source, amount)
             -- Remove money from player's personal account
             local player = QBCore.Functions.GetPlayer(source)
             if not player then 
-                print("^1[Casino] No QBCore player found for source: " .. source .. "^0")
                 return false 
             end
             
             local identifier = player.PlayerData.citizenid
-            print("^3[Casino] Attempting to remove $" .. amount .. " from citizen ID: " .. identifier .. "^0")
             
             local success, account = pcall(function()
                 return exports['RxBanking']:GetPlayerPersonalAccount(identifier)
             end)
             
             if not success or not account or not account.iban then
-                print("^1[Casino] Failed to get account for money removal: " .. identifier .. "^0")
                 return false
             end
             
-            print("^3[Casino] Using IBAN: " .. account.iban .. " for removal^0")
             
             -- Remove money from the account using the exact export you provided
             local removeSuccess, result = pcall(function()
@@ -79,10 +67,8 @@ Config.BankingExports = {
             end)
             
             if removeSuccess and result then
-                print("^2[Casino] Successfully removed $" .. amount .. " from " .. identifier .. "^0")
                 return true
             else
-                print("^1[Casino] Failed to remove money: " .. tostring(result) .. "^0")
                 return false
             end
         end,
@@ -90,23 +76,19 @@ Config.BankingExports = {
             -- Add money to player's personal account
             local player = QBCore.Functions.GetPlayer(source)
             if not player then 
-                print("^1[Casino] No QBCore player found for source: " .. source .. "^0")
                 return false 
             end
             
             local identifier = player.PlayerData.citizenid
-            print("^3[Casino] Attempting to add $" .. amount .. " to citizen ID: " .. identifier .. "^0")
             
             local success, account = pcall(function()
                 return exports['RxBanking']:GetPlayerPersonalAccount(identifier)
             end)
             
             if not success or not account or not account.iban then
-                print("^1[Casino] Failed to get account for money addition: " .. identifier .. "^0")
                 return false
             end
             
-            print("^3[Casino] Using IBAN: " .. account.iban .. " for addition^0")
             
             -- Add money to the account using the exact export you provided
             local addSuccess, result = pcall(function()
@@ -120,10 +102,8 @@ Config.BankingExports = {
             end)
             
             if addSuccess and result then
-                print("^2[Casino] Successfully added $" .. amount .. " to " .. identifier .. "^0")
                 return true
             else
-                print("^1[Casino] Failed to add money: " .. tostring(result) .. "^0")
                 return false
             end
         end
@@ -313,7 +293,7 @@ Config.SlotMachines = {
 
 -- Plinko Configuration
 Config.Plinko = {
-    rows = 12, -- Optimized for faster gameplay
+    rows = 10, -- Optimized for maximum performance
     -- More balanced multipliers - harder to win big
     multipliers = {100, 26, 9, 4, 2, 1.5, 1, 0.5, 0.2, 0.5, 1, 1.5, 2, 4, 9, 26, 100},
     -- Bet-dependent multiplier scaling
@@ -378,4 +358,3 @@ Config.Database = {
 }
 
 -- Debug: Confirm config loaded
-print("^2[Casino] Config.lua loaded successfully^0")
