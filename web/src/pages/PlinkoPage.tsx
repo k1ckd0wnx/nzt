@@ -38,14 +38,15 @@ interface Peg {
 }
 
 const MULTIPLIERS = [100, 26, 9, 4, 2, 1.5, 1, 0.5, 0.2, 0.5, 1, 1.5, 2, 4, 9, 26, 100]
-const ROWS = 16
+const ROWS = 12 // Reduced from 16 for faster gameplay
 const PEG_RADIUS = 3
 const BALL_RADIUS = 5
-const GRAVITY = 0.25
-const BOUNCE = 0.6
-const FRICTION = 0.998
+const GRAVITY = 0.4 // Increased for faster falling
+const BOUNCE = 0.5 // Reduced for less bouncing
+const FRICTION = 0.99 // Reduced for faster movement
 const CANVAS_WIDTH = 700
-const CANVAS_HEIGHT = 600
+const CANVAS_HEIGHT = 500 // Reduced height for faster gameplay
+const MAX_TRAIL_LENGTH = 8 // Reduced trail for better performance
 
 export function PlinkoPage() {
   const { user, sendNUIMessage } = useAppStore()
@@ -60,13 +61,13 @@ export function PlinkoPage() {
   const [lastWin, setLastWin] = useState<number | null>(null)
   const [ballCount, setBallCount] = useState(0)
 
-  // Initialize pegs with better distribution
+  // Initialize pegs with optimized distribution
   useEffect(() => {
     const newPegs: Peg[] = []
     const width = CANVAS_WIDTH
     const height = CANVAS_HEIGHT
     const pegSpacing = width / (ROWS + 2)
-    const rowHeight = (height - 180) / ROWS
+    const rowHeight = (height - 140) / ROWS // Adjusted for new height
 
     for (let row = 0; row < ROWS; row++) {
       const pegsInRow = row + 3
@@ -75,7 +76,7 @@ export function PlinkoPage() {
       for (let col = 0; col < pegsInRow; col++) {
         newPegs.push({
           x: startX + col * pegSpacing,
-          y: 80 + row * rowHeight,
+          y: 60 + row * rowHeight, // Adjusted starting position
           radius: PEG_RADIUS
         })
       }
@@ -90,9 +91,9 @@ export function PlinkoPage() {
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
 
-    // Enable hardware acceleration
-    ctx.imageSmoothingEnabled = true
-    ctx.imageSmoothingQuality = 'high'
+    // Enable hardware acceleration with performance optimizations
+    ctx.imageSmoothingEnabled = false // Disabled for better performance
+    // ctx.imageSmoothingQuality = 'high' // Commented out for performance
 
     const animate = () => {
       // Clear canvas with gradient background
@@ -136,10 +137,10 @@ export function PlinkoPage() {
         const zoneWidth = canvas.width / MULTIPLIERS.length
         MULTIPLIERS.forEach((multiplier, index) => {
           const x = index * zoneWidth
-          const y = canvas.height - 70
+          const y = canvas.height - 60 // Adjusted for new canvas height
           
-          // Zone gradient background - blue/gray/white only
-          const zoneGradient = ctx.createLinearGradient(x, y, x, y + 70)
+                      // Zone gradient background - blue/gray/white only
+            const zoneGradient = ctx.createLinearGradient(x, y, x, y + 60)
           if (multiplier >= 100) {
             // High multipliers - bright blue
             zoneGradient.addColorStop(0, 'rgba(14, 165, 233, 0.4)')
@@ -154,13 +155,13 @@ export function PlinkoPage() {
             zoneGradient.addColorStop(1, 'rgba(71, 85, 105, 0.5)')
           }
           
-          ctx.fillStyle = zoneGradient
-          ctx.fillRect(x, y, zoneWidth, 70)
-          
-          // Zone border - blue or white
-          ctx.strokeStyle = multiplier >= 10 ? '#0ea5e9' : '#ffffff'
-          ctx.lineWidth = 2
-          ctx.strokeRect(x, y, zoneWidth, 70)
+                      ctx.fillStyle = zoneGradient
+            ctx.fillRect(x, y, zoneWidth, 60)
+            
+            // Zone border - blue or white
+            ctx.strokeStyle = multiplier >= 10 ? '#0ea5e9' : '#ffffff'
+            ctx.lineWidth = 2
+            ctx.strokeRect(x, y, zoneWidth, 60)
           
           // Multiplier text with better styling - blue or white
           const textColor = multiplier >= 10 ? '#0ea5e9' : '#ffffff'
@@ -169,11 +170,11 @@ export function PlinkoPage() {
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
           
-          // Text shadow for better visibility
-          ctx.shadowColor = 'rgba(15, 23, 42, 0.8)'
-          ctx.shadowBlur = 2
-          ctx.fillText(`${multiplier}x`, x + zoneWidth / 2, y + 35)
-          ctx.shadowBlur = 0
+                      // Text shadow for better visibility
+            ctx.shadowColor = 'rgba(15, 23, 42, 0.8)'
+            ctx.shadowBlur = 2
+            ctx.fillText(`${multiplier}x`, x + zoneWidth / 2, y + 30) // Adjusted text position
+            ctx.shadowBlur = 0
         })
 
       // Update and draw balls with enhanced physics
@@ -186,14 +187,19 @@ export function PlinkoPage() {
           ball.vx *= FRICTION
           ball.vy *= FRICTION
 
-          // Add to trail with time-based fading
+          // Add to trail with optimized length
           ball.trail.push({ x: ball.x, y: ball.y })
-          if (ball.trail.length > 12) ball.trail.shift()
+          if (ball.trail.length > MAX_TRAIL_LENGTH) ball.trail.shift()
 
-          // Enhanced collision with pegs
+          // Optimized collision with pegs (only check nearby pegs)
           pegs.forEach(peg => {
+            // Quick distance check to avoid expensive calculations
             const dx = ball.x - peg.x
             const dy = ball.y - peg.y
+            
+            // Skip if peg is too far away
+            if (Math.abs(dx) > 15 || Math.abs(dy) > 15) return
+            
             const distance = Math.sqrt(dx * dx + dy * dy)
             
             if (distance < ball.radius + peg.radius) {
@@ -204,10 +210,10 @@ export function PlinkoPage() {
               ball.x = targetX
               ball.y = targetY
               
-              // More realistic bounce with randomness
-              const bounceStrength = BOUNCE * (0.8 + Math.random() * 0.4)
-              ball.vx = Math.cos(angle) * bounceStrength * 3 + (Math.random() - 0.5) * 0.8
-              ball.vy = Math.sin(angle) * bounceStrength * 3 + Math.random() * 0.5
+              // Simplified bounce for better performance
+              const bounceStrength = BOUNCE * (0.9 + Math.random() * 0.2)
+              ball.vx = Math.cos(angle) * bounceStrength * 2.5 + (Math.random() - 0.5) * 0.6
+              ball.vy = Math.sin(angle) * bounceStrength * 2.5 + Math.random() * 0.3
             }
           })
 
@@ -219,8 +225,8 @@ export function PlinkoPage() {
             ball.vy += (Math.random() - 0.5) * 0.3
           }
 
-          // Check if ball reached bottom
-          if (ball.y > canvas.height - 90) {
+          // Check if ball reached bottom (optimized detection)
+          if (ball.y > canvas.height - 70) {
             const zoneIndex = Math.floor(ball.x / (canvas.width / MULTIPLIERS.length))
             const clampedIndex = Math.max(0, Math.min(MULTIPLIERS.length - 1, zoneIndex))
             const winAmount = betAmount * MULTIPLIERS[clampedIndex]
@@ -249,26 +255,19 @@ export function PlinkoPage() {
         return updatedBalls
       })
 
-              // Draw enhanced balls with glow and trails - blue and white theme
+              // Draw optimized balls with trails - blue and white theme
         balls.forEach(ball => {
-          // Draw enhanced trail with gradient - blue trail
+          // Draw simplified trail for better performance
           if (ball.trail.length > 1) {
             ctx.strokeStyle = '#0ea5e9'
-            ctx.lineWidth = 3
-            ctx.lineCap = 'round'
-            ctx.lineJoin = 'round'
+            ctx.lineWidth = 2 // Reduced for performance
+            ctx.globalAlpha = 0.4 // Fixed alpha for better performance
             
             ctx.beginPath()
-            ball.trail.forEach((point, index) => {
-              const opacity = index / ball.trail.length
-              ctx.globalAlpha = opacity * 0.6
-              
-              if (index === 0) {
-                ctx.moveTo(point.x, point.y)
-              } else {
-                ctx.lineTo(point.x, point.y)
-              }
-            })
+            ctx.moveTo(ball.trail[0].x, ball.trail[0].y)
+            for (let i = 1; i < ball.trail.length; i++) {
+              ctx.lineTo(ball.trail[i].x, ball.trail[i].y)
+            }
             ctx.stroke()
             ctx.globalAlpha = 1
           }
@@ -329,10 +328,10 @@ export function PlinkoPage() {
 
     const newBall: Ball = {
       id: Date.now() + ballCount,
-      x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 30,
-      y: 15,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: 0.2,
+      x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 20, // Reduced randomness for faster gameplay
+      y: 10,
+      vx: (Math.random() - 0.5) * 0.2, // Reduced initial horizontal velocity
+      vy: 0.3, // Increased initial downward velocity
       radius: BALL_RADIUS,
       color: '#f59e0b',
       trail: []
@@ -478,7 +477,7 @@ export function PlinkoPage() {
 
           {/* Game Canvas */}
           <Grid.Col span={{ base: 12, md: 9 }}>
-            <Paper p="md" bg="dark.8" radius="md" h="640">
+            <Paper p="md" bg="dark.8" radius="md" h="540">
               <canvas
                 ref={canvasRef}
                 width={CANVAS_WIDTH}

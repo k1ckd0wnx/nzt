@@ -499,7 +499,14 @@ RegisterNetEvent(Utils.Events.SLOTS_SPIN, function(machineType, betAmount, sessi
     
     -- Check balance
     local user = MySQL.query.await('SELECT balance FROM casino_users WHERE id = ?', { session.userId })
-    if not user or #user == 0 or user[1].balance < betAmount then
+    if not user or #user == 0 then
+        TriggerClientEvent('QBCore:Notify', source, 'Insufficient balance!', 'error')
+        return
+    end
+    
+    -- Convert balance to number to avoid string comparison issues
+    local userBalance = tonumber(user[1].balance) or 0
+    if userBalance < betAmount then
         TriggerClientEvent('QBCore:Notify', source, 'Insufficient balance!', 'error')
         return
     end
@@ -575,7 +582,14 @@ RegisterNetEvent(Utils.Events.PLINKO_DROP, function(betAmount, sessionToken)
     
     -- Check balance
     local user = MySQL.query.await('SELECT balance FROM casino_users WHERE id = ?', { session.userId })
-    if not user or #user == 0 or user[1].balance < betAmount then
+    if not user or #user == 0 then
+        TriggerClientEvent('QBCore:Notify', source, 'Insufficient balance!', 'error')
+        return
+    end
+    
+    -- Convert balance to number to avoid string comparison issues
+    local userBalance = tonumber(user[1].balance) or 0
+    if userBalance < betAmount then
         TriggerClientEvent('QBCore:Notify', source, 'Insufficient balance!', 'error')
         return
     end
@@ -739,7 +753,14 @@ RegisterNetEvent(Utils.Events.AVIATOR_BET, function(betAmount, autoCashOut, sess
     
     -- Check balance
     local user = MySQL.query.await('SELECT balance FROM casino_users WHERE id = ?', { session.userId })
-    if not user or #user == 0 or user[1].balance < betAmount then
+    if not user or #user == 0 then
+        TriggerClientEvent('QBCore:Notify', source, 'Insufficient balance!', 'error')
+        return
+    end
+    
+    -- Convert balance to number to avoid string comparison issues
+    local userBalance = tonumber(user[1].balance) or 0
+    if userBalance < betAmount then
         TriggerClientEvent('QBCore:Notify', source, 'Insufficient balance!', 'error')
         return
     end
