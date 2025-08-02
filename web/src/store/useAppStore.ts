@@ -94,11 +94,20 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
   
   initialize: (data) => {
+    console.log('Initialize called with data:', data)
+    console.log('Config received:', data.config)
+    console.log('User received:', data.user)
     set({
       config: data.config,
       user: data.user,
       isInitialized: true,
       currentPage: data.user ? 'lobby' : 'auth',
+    })
+    console.log('App state after initialize:', { 
+      isInitialized: true, 
+      hasConfig: !!data.config, 
+      hasUser: !!data.user,
+      currentPage: data.user ? 'lobby' : 'auth'
     })
   },
   
@@ -111,10 +120,20 @@ export const useAppStore = create<AppStore>((set, get) => ({
       case 'initialize_app':
       case 'initializeApp':
         console.log('Initializing app with server config:', update.config)
+        console.log('Full update object:', update)
         set({ 
           config: update.config,
           isInitialized: true,
           currentPage: 'auth' // Default to auth page until user data is received
+        })
+        console.log('App initialized via handleUIUpdate')
+        break
+        
+      case 'show_auth':
+        console.log('Server requesting to show auth page')
+        set({ 
+          currentPage: 'auth',
+          isInitialized: true
         })
         break
         

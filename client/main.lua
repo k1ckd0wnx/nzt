@@ -31,9 +31,10 @@ local function handleUIUpdate(data)
         if nuiData.user then
             nuiData.user.balance = data.balance
         end
-    elseif data.action == "initialize_app" then
+    elseif data.action == "initialize_app" or data.action == "initializeApp" then
         -- Force app to be marked as open when initialization happens
         isAppOpen = true
+        print("^2[Casino] App marked as open due to initialization^0")
     end
 end
 
