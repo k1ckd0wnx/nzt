@@ -46,6 +46,9 @@
     "username_too_short": "Username must be at least 3 characters",
     "password_too_short": "Password must be at least 6 characters",
     "username_invalid": "Username can only contain letters, numbers, and underscores",
+    "username_too_long": "Username must be less than 20 characters",
+    "password_confirm_required": "Please confirm your password",
+    "passwords_no_match": "Passwords do not match",
     "logging_in": "Logging in...",
     "registering": "Creating account..."
   },

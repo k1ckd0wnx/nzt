@@ -108,8 +108,8 @@ function App() {
     }
   }, [config?.locale, updateServerLocale])
 
-  // Show minimal loading screen (wait for both app and locale initialization)
-  if (!isInitialized || !localeInitialized) {
+  // Show minimal loading screen (wait for app initialization)
+  if (!isInitialized) {
     return (
       <div className="casino-app">
         <Center h="100vh">

@@ -212,7 +212,7 @@ export function LocaleProvider({ children, initialLocale = 'en', serverLocale }:
   const [locale, setLocaleState] = useState<LocaleCode>(initialLocale)
   const [localeData, setLocaleData] = useState<LocaleData>(DEFAULT_LOCALE)
   const [configReceived, setConfigReceived] = useState(false)
-  const [isInitialized, setIsInitialized] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(true) // Start as initialized with default data
 
   // Function to load locale data
   const loadLocaleData = async (localeCode: LocaleCode) => {
@@ -237,9 +237,8 @@ export function LocaleProvider({ children, initialLocale = 'en', serverLocale }:
     } catch (error) {
       console.warn(`Failed to load locale ${localeCode}, using default:`, error)
       setLocaleData(DEFAULT_LOCALE)
-    } finally {
-      setIsInitialized(true)
     }
+    // Don't set isInitialized again since it starts as true
   }
 
   // Set locale and load data
@@ -284,20 +283,28 @@ export function LocaleProvider({ children, initialLocale = 'en', serverLocale }:
   // Initialize locale from localStorage
   useEffect(() => {
     const initializeLocale = async () => {
-      const savedLocale = localStorage.getItem('casino-locale') as LocaleCode
-      let targetLocale: LocaleCode = 'en'
-      
-      if (serverLocale && serverLocale in AVAILABLE_LOCALES) {
-        // Use server locale if no saved preference
-        targetLocale = (savedLocale && savedLocale in AVAILABLE_LOCALES) ? savedLocale : serverLocale as LocaleCode
-      } else if (savedLocale && savedLocale in AVAILABLE_LOCALES) {
-        // Use saved preference
-        targetLocale = savedLocale
+      try {
+        const savedLocale = localStorage.getItem('casino-locale') as LocaleCode
+        let targetLocale: LocaleCode = 'en'
+        
+        if (serverLocale && serverLocale in AVAILABLE_LOCALES) {
+          // Use server locale if no saved preference
+          targetLocale = (savedLocale && savedLocale in AVAILABLE_LOCALES) ? savedLocale : serverLocale as LocaleCode
+        } else if (savedLocale && savedLocale in AVAILABLE_LOCALES) {
+          // Use saved preference
+          targetLocale = savedLocale
+        }
+        
+        console.log(`Initializing locale: ${targetLocale}`)
+        setLocaleState(targetLocale)
+        await loadLocaleData(targetLocale)
+      } catch (error) {
+        console.warn('Error initializing locale:', error)
+        // Fallback to English and mark as initialized
+        setLocaleState('en')
+        setLocaleData(DEFAULT_LOCALE)
+        setIsInitialized(true)
       }
-      
-      console.log(`Initializing locale: ${targetLocale}`)
-      setLocaleState(targetLocale)
-      await loadLocaleData(targetLocale)
     }
     
     initializeLocale()

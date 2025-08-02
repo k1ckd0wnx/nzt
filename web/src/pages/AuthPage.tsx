@@ -36,7 +36,7 @@ export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const { sendNUIMessage, error } = useAppStore()
-  const { t } = useLocale()
+  const { t, isInitialized } = useLocale()
 
   const loginForm = useForm<LoginForm>({
     initialValues: {
@@ -44,8 +44,8 @@ export function AuthPage() {
       password: '',
     },
     validate: {
-      username: (value) => (!value ? 'Username is required' : null),
-      password: (value) => (!value ? 'Password is required' : null),
+      username: (value) => (!value ? (isInitialized ? t('auth.username_required') : 'Username is required') : null),
+      password: (value) => (!value ? (isInitialized ? t('auth.password_required') : 'Password is required') : null),
     },
   })
 
@@ -57,21 +57,21 @@ export function AuthPage() {
     },
     validate: {
       username: (value) => {
-        if (!value) return 'Username is required'
-        if (value.length < 3) return 'Username must be at least 3 characters'
-        if (value.length > 20) return 'Username must be less than 20 characters'
-        if (!/^[a-zA-Z0-9_]+$/.test(value)) return 'Username can only contain letters, numbers, and underscores'
+        if (!value) return isInitialized ? t('auth.username_required') : 'Username is required'
+        if (value.length < 3) return isInitialized ? t('auth.username_too_short') : 'Username must be at least 3 characters'
+        if (value.length > 20) return isInitialized ? t('auth.username_too_long', 'Username must be less than 20 characters') : 'Username must be less than 20 characters'
+        if (!/^[a-zA-Z0-9_]+$/.test(value)) return isInitialized ? t('auth.username_invalid') : 'Username can only contain letters, numbers, and underscores'
         return null
       },
 
       password: (value) => {
-        if (!value) return 'Password is required'
-        if (value.length < 6) return 'Password must be at least 6 characters'
+        if (!value) return isInitialized ? t('auth.password_required') : 'Password is required'
+        if (value.length < 6) return isInitialized ? t('auth.password_too_short') : 'Password must be at least 6 characters'
         return null
       },
       confirmPassword: (value, values) => {
-        if (!value) return 'Please confirm your password'
-        if (value !== values.password) return 'Passwords do not match'
+        if (!value) return isInitialized ? t('auth.password_confirm_required', 'Please confirm your password') : 'Please confirm your password'
+        if (value !== values.password) return isInitialized ? t('auth.passwords_no_match', 'Passwords do not match') : 'Passwords do not match'
         return null
       },
     },
