@@ -30,13 +30,28 @@ function App() {
         // @ts-ignore
         const hasNativeAPI = typeof window.invokeNative !== 'undefined' || typeof window.GetParentResourceName !== 'undefined'
         
-        if (hasNativeAPI) {
-          console.log('Initializing casino app in NUI context...')
-          await sendNUIMessage('appLoaded')
-        } else {
-          console.log('Not in NUI context - casino app should only run inside fd_laptop')
-          // Don't initialize outside of FiveM/fd_laptop
-        }
+                          if (hasNativeAPI) {
+            console.log('Initializing casino app in NUI context...')
+            const response = await sendNUIMessage('appLoaded')
+            console.log('AppLoaded response:', response)
+            
+            // Handle direct initialization from callback response
+            if (response && response.action === 'directInit') {
+              console.log('✅ DIRECT INIT RECEIVED FROM CALLBACK!')
+              console.log('Direct init data:', response)
+              
+              useAppStore.getState().initialize({
+                config: response.config,
+                user: response.user,
+                events: {}
+              })
+              
+              console.log('App initialized via direct callback response')
+            }
+          } else {
+            console.log('Not in NUI context - casino app should only run inside fd_laptop')
+            // Don't initialize outside of FiveM/fd_laptop
+          }
               } catch (error) {
           console.log('App initialization error:', error)
         }
@@ -63,6 +78,27 @@ function App() {
     
     // Small delay to ensure context is ready
     setTimeout(initializeApp, 1000)
+    
+    // WORKAROUND: Since fd_laptop blocks SendNUIMessage, poll for data directly
+    const pollForData = () => {
+      const { isInitialized, user } = useAppStore.getState()
+      if (!isInitialized || !user) {
+        console.log('Polling server for fresh data...')
+        sendNUIMessage('pollForData', { 
+          timestamp: Date.now(),
+          needsInit: !isInitialized,
+          needsUser: !user
+        })
+      }
+    }
+    
+    // Poll every 2 seconds for the first 30 seconds
+    const pollInterval = setInterval(pollForData, 2000)
+    setTimeout(() => {
+      clearInterval(pollInterval)
+      console.log('Polling stopped')
+    }, 30000)
+    
   }, [])
 
   // Show loading screen until initialized

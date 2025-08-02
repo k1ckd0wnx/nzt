@@ -3,6 +3,7 @@
 
 local isAppOpen = false
 local nuiData = {}
+local pendingLoginCallback = nil
 
 -- Register with fd_laptop (moved to server-side as per fd_laptop docs)
 
@@ -49,6 +50,18 @@ local function handleUIUpdate(data)
     if data.action == "login_success" then
         nuiData.user = data.user
         print("^2[Casino] Stored user data for " .. data.user.username .. "^0")
+        
+        -- Respond to pending login callback with direct user data
+        if pendingLoginCallback then
+            print("^3[Casino] Responding to pending login callback with user data^0")
+            pendingLoginCallback({
+                success = true,
+                action = "directLogin",
+                user = data.user,
+                message = "Login successful"
+            })
+            pendingLoginCallback = nil
+        end
     elseif data.action == "balance_updated" then
         if nuiData.user then
             nuiData.user.balance = data.balance
@@ -117,11 +130,61 @@ end)
 RegisterNUICallback("appLoaded", function(data, cb)
     print("^2[Casino] App loaded callback received from React^0")
     TriggerServerEvent("casino:initializeApp")
-    cb("ok")
+    
+    -- Send initialization data directly in the callback response
+    local player = QBCore.Functions.GetPlayer(GetPlayerServerId(PlayerId()))
+    if player then
+        local citizenid = player.PlayerData.citizenid
+        
+        -- Get user data if exists
+        local hasUser = nuiData.user ~= nil
+        local userData = nuiData.user
+        
+        print("^3[Casino] Sending initialization data in callback response^0")
+        cb({
+            success = true,
+            action = "directInit",
+            config = {
+                casinoName = "Premium Casino",
+                minBets = { slots = 20, plinko = 10, mines = 10, aviator = 10 },
+                maxBets = { slots = 10000, plinko = 5000, mines = 5000, aviator = 50000 },
+                slotMachines = Config and Config.SlotMachines or {}
+            },
+            user = userData,
+            hasStoredUser = hasUser
+        })
+    else
+        cb("ok")
+    end
 end)
 
 RegisterNUICallback("debugMessage", function(data, cb)
     print("^3[Casino] DEBUG from React: " .. json.encode(data) .. "^0")
+    cb("ok")
+end)
+
+RegisterNUICallback("pollForData", function(data, cb)
+    print("^3[Casino] React polling for data: " .. json.encode(data) .. "^0")
+    
+    -- Force trigger server to send fresh data
+    TriggerServerEvent("casino:initializeApp")
+    
+    -- Also send any stored user data directly
+    if nuiData.user then
+        print("^3[Casino] Sending stored user data to React^0")
+        
+        -- Try to send user data in a format that might work
+        local userData = {
+            action = "login_success",
+            user = nuiData.user
+        }
+        
+        -- Use the same multi-format approach
+        SendNUIMessage({type = "updateUI", data = userData})
+        SendNUIMessage({action = "casino_updateUI", data = userData})
+        SendNUIMessage({source = "casino", action = "login_success", payload = userData})
+    end
+    
     cb("ok")
 end)
 
@@ -142,10 +205,11 @@ RegisterNUICallback("login", function(data, cb)
     end
     
     print("^3[Casino] Client sending login request to server^0")
-    TriggerServerEvent(Utils.Events.LOGIN, data.username, data.password)
     
-    -- Don't respond immediately - let server response handle success/failure
-    cb({ success = true, message = "Logging in..." })
+    -- Store callback for direct response
+    pendingLoginCallback = cb
+    
+    TriggerServerEvent(Utils.Events.LOGIN, data.username, data.password)
 end)
 
 RegisterNUICallback("logout", function(data, cb)

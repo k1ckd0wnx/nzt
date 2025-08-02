@@ -79,11 +79,27 @@ export function AuthPage() {
     setIsLoading(true)
     try {
       console.log('Sending login request...', values)
-      await sendNUIMessage('login', values)
-      console.log('Login request sent, waiting for server response...')
+      const response = await sendNUIMessage('login', values)
+      console.log('Login response received:', response)
       
-      // Keep loading until server responds with login_success or login_failed
-      // The loading state will be cleared by the server response handler
+      // Handle direct login response from callback
+      if (response && response.action === 'directLogin') {
+        console.log('✅ DIRECT LOGIN RECEIVED FROM CALLBACK!')
+        console.log('Direct login data:', response)
+        
+        useAppStore.getState().handleUIUpdate({
+          action: 'login_success',
+          user: response.user
+        })
+        
+        setIsLoading(false)
+        console.log('Login processed via direct callback response')
+      } else {
+        console.log('Login request sent, waiting for server response...')
+        // Keep loading until server responds with login_success or login_failed
+        // The loading state will be cleared by the server response handler
+      }
+      
     } catch (error) {
       console.error('Login error:', error)
       setIsLoading(false)
