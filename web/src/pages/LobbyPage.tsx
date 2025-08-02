@@ -62,8 +62,8 @@ export function LobbyPage() {
       description: '5 unique themed slots with jackpots',
       icon: <IconDeviceGamepad size={32} />,
       minBet: config?.minBets.slots || 20,
-      color: 'grape',
-      gradient: { from: 'grape', to: 'pink' },
+      color: 'blue',
+      gradient: { from: 'blue', to: 'blue' },
       isPopular: true,
     },
     {
@@ -72,8 +72,8 @@ export function LobbyPage() {
       description: 'Drop balls and watch them bounce',
       icon: <IconCircle size={32} />,
       minBet: config?.minBets.plinko || 10,
-      color: 'orange',
-      gradient: { from: 'orange', to: 'yellow' },
+      color: 'blue',
+      gradient: { from: 'blue', to: 'blue' },
     },
     {
       id: 'mines',
@@ -81,8 +81,8 @@ export function LobbyPage() {
       description: 'Reveal tiles and avoid the mines',
       icon: <IconBomb size={32} />,
       minBet: config?.minBets.mines || 10,
-      color: 'red',
-      gradient: { from: 'red', to: 'pink' },
+      color: 'blue',
+      gradient: { from: 'blue', to: 'blue' },
       isNew: true,
     },
     {
@@ -91,8 +91,8 @@ export function LobbyPage() {
       description: 'Cash out before the plane crashes',
       icon: <IconTrendingUp size={32} />,
       minBet: config?.minBets.aviator || 10,
-      color: 'green',
-      gradient: { from: 'green', to: 'teal' },
+      color: 'blue',
+      gradient: { from: 'blue', to: 'blue' },
       isPopular: true,
     },
   ]
@@ -108,7 +108,7 @@ export function LobbyPage() {
       label: 'Total Won',
       value: formatCurrency(user?.totalWon || 0),
       icon: <IconTrophy size={20} />,
-      color: 'yellow',
+      color: 'blue',
     },
     {
       label: 'Win Rate',
@@ -116,13 +116,13 @@ export function LobbyPage() {
         ? `${((user.totalWon || 0) / user.totalWagered * 100).toFixed(1)}%`
         : '0%',
       icon: <IconChartLine size={20} />,
-      color: 'green',
+      color: 'blue',
     },
     {
       label: 'Level',
       value: Math.floor((user?.totalWagered || 0) / 1000) + 1,
       icon: <IconStar size={20} />,
-      color: 'purple',
+      color: 'blue',
     },
   ]
 

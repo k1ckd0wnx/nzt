@@ -44,15 +44,15 @@ const Navigation = memo(() => {
   const { t, locale, setLocale } = useLocale()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  // Create navigation items with translations
+  // Create navigation items with translations - Only blue theme
   const navigationItems: NavItem[] = [
     { id: 'lobby', label: t('nav.lobby'), icon: <IconHome size={20} />, color: 'blue' },
-    { id: 'slots', label: t('nav.slots'), icon: <IconDeviceGamepad size={20} />, color: 'grape' },
-    { id: 'plinko', label: t('nav.plinko'), icon: <IconCircle size={20} />, color: 'orange' },
-    { id: 'mines', label: t('nav.mines'), icon: <IconBomb size={20} />, color: 'red' },
-    { id: 'aviator', label: t('nav.aviator'), icon: <IconTrendingUp size={20} />, color: 'green' },
-    { id: 'banking', label: t('nav.banking'), icon: <IconWallet size={20} />, color: 'teal' },
-    { id: 'transactions', label: t('nav.transactions'), icon: <IconReceipt size={20} />, color: 'gray' },
+    { id: 'slots', label: t('nav.slots'), icon: <IconDeviceGamepad size={20} />, color: 'blue' },
+    { id: 'plinko', label: t('nav.plinko'), icon: <IconCircle size={20} />, color: 'blue' },
+    { id: 'mines', label: t('nav.mines'), icon: <IconBomb size={20} />, color: 'blue' },
+    { id: 'aviator', label: t('nav.aviator'), icon: <IconTrendingUp size={20} />, color: 'blue' },
+    { id: 'banking', label: t('nav.banking'), icon: <IconWallet size={20} />, color: 'blue' },
+    { id: 'transactions', label: t('nav.transactions'), icon: <IconReceipt size={20} />, color: 'blue' },
   ]
 
   const handleLogout = useCallback(async () => {
@@ -147,7 +147,7 @@ const Navigation = memo(() => {
             <Badge
               size="lg"
               variant="light"
-              color="green"
+              color="blue"
               leftSection={<IconWallet size={16} />}
               style={{ fontSize: '14px' }}
               className="count-up"
@@ -247,7 +247,7 @@ const Navigation = memo(() => {
               
               <Menu.Item
                 leftSection={<IconLogout size={16} />}
-                color="red"
+                color="gray"
                 onClick={handleLogout}
               >
                 {t('auth.logout')}

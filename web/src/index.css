@@ -19,7 +19,7 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #0c1426 0%, #1a1f36 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   /* Performance optimizations */
   will-change: auto;
   transform: translateZ(0);
@@ -42,19 +42,19 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--mantine-color-blue-6);
+  background: #0ea5e9;
   border-radius: 3px;
   transition: background 0.15s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--mantine-color-blue-5);
+  background: #38bdf8;
 }
 
 /* Casino specific animations */
 .casino-app {
   height: 100vh;
-  background: linear-gradient(135deg, #0c1426 0%, #1a1f36 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   position: relative;
   overflow: hidden;
   /* Hardware acceleration */
@@ -71,9 +71,9 @@ body {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -147,17 +147,17 @@ body {
 
 /* Aviator game styles */
 .aviator-chart {
-  background: linear-gradient(to bottom, rgba(43, 133, 227, 0.1) 0%, transparent 100%);
+  background: linear-gradient(to bottom, rgba(14, 165, 233, 0.1) 0%, transparent 100%);
   border-radius: 8px;
   position: relative;
   overflow: hidden;
 }
 
 .aviator-line {
-  stroke: var(--mantine-color-blue-6);
+  stroke: #0ea5e9;
   stroke-width: 3;
   fill: none;
-  filter: drop-shadow(0 0 6px rgba(43, 133, 227, 0.6));
+  filter: drop-shadow(0 0 6px rgba(14, 165, 233, 0.6));
 }
 
 /* Glass morphism effect */
@@ -167,21 +167,21 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Glow effects */
+/* Glow effects - only blue and gray theme */
 .glow-blue {
-  box-shadow: 0 0 20px rgba(43, 133, 227, 0.3);
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
 }
 
 .glow-green {
-  box-shadow: 0 0 20px rgba(64, 192, 87, 0.3);
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
 }
 
 .glow-red {
-  box-shadow: 0 0 20px rgba(250, 82, 82, 0.3);
+  box-shadow: 0 0 20px rgba(71, 85, 105, 0.3);
 }
 
 .glow-gold {
-  box-shadow: 0 0 20px rgba(255, 212, 59, 0.3);
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
 }
 
 /* Optimized button hover effects */

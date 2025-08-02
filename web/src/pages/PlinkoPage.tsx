@@ -102,77 +102,79 @@ export function PlinkoPage() {
       ctx.fillStyle = gradient
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      // Draw enhanced pegs with glow effect
-      pegs.forEach(peg => {
-        // Glow effect
-        ctx.shadowColor = '#3b82f6'
-        ctx.shadowBlur = 10
-        ctx.shadowOffsetX = 0
-        ctx.shadowOffsetY = 0
-        
-        // Peg gradient
-        const pegGradient = ctx.createRadialGradient(peg.x, peg.y, 0, peg.x, peg.y, peg.radius * 2)
-        pegGradient.addColorStop(0, '#60a5fa')
-        pegGradient.addColorStop(0.7, '#3b82f6')
-        pegGradient.addColorStop(1, '#1e40af')
-        
-        ctx.beginPath()
-        ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2)
-        ctx.fillStyle = pegGradient
-        ctx.fill()
-        
-        // Peg border
-        ctx.shadowBlur = 0
-        ctx.strokeStyle = '#1e40af'
-        ctx.lineWidth = 1.5
-        ctx.stroke()
-      })
+              // Draw enhanced pegs with glow effect
+        pegs.forEach(peg => {
+          // Glow effect
+          ctx.shadowColor = '#0ea5e9'
+          ctx.shadowBlur = 10
+          ctx.shadowOffsetX = 0
+          ctx.shadowOffsetY = 0
+          
+          // Peg gradient - blue and white only
+          const pegGradient = ctx.createRadialGradient(peg.x, peg.y, 0, peg.x, peg.y, peg.radius * 2)
+          pegGradient.addColorStop(0, '#ffffff')
+          pegGradient.addColorStop(0.3, '#38bdf8')
+          pegGradient.addColorStop(0.7, '#0ea5e9')
+          pegGradient.addColorStop(1, '#0284c7')
+          
+          ctx.beginPath()
+          ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2)
+          ctx.fillStyle = pegGradient
+          ctx.fill()
+          
+          // Peg border
+          ctx.shadowBlur = 0
+          ctx.strokeStyle = '#ffffff'
+          ctx.lineWidth = 1.5
+          ctx.stroke()
+        })
 
       // Reset shadow for other elements
       ctx.shadowBlur = 0
 
-      // Draw enhanced multiplier zones
-      const zoneWidth = canvas.width / MULTIPLIERS.length
-      MULTIPLIERS.forEach((multiplier, index) => {
-        const x = index * zoneWidth
-        const y = canvas.height - 70
-        
-        // Zone gradient background
-        const zoneGradient = ctx.createLinearGradient(x, y, x, y + 70)
-        if (multiplier >= 100) {
-          zoneGradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)')
-          zoneGradient.addColorStop(1, 'rgba(34, 197, 94, 0.6)')
-        } else if (multiplier >= 10) {
-          zoneGradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)')
-          zoneGradient.addColorStop(1, 'rgba(59, 130, 246, 0.6)')
-        } else {
-          zoneGradient.addColorStop(0, 'rgba(156, 163, 175, 0.3)')
-          zoneGradient.addColorStop(1, 'rgba(156, 163, 175, 0.6)')
-        }
-        
-        ctx.fillStyle = zoneGradient
-        ctx.fillRect(x, y, zoneWidth, 70)
-        
-        // Zone border
-        ctx.strokeStyle = multiplier >= 100 ? '#22c55e' : 
-                         multiplier >= 10 ? '#3b82f6' : '#9ca3af'
-        ctx.lineWidth = 2
-        ctx.strokeRect(x, y, zoneWidth, 70)
-        
-        // Multiplier text with better styling
-        const textColor = multiplier >= 100 ? '#22c55e' : 
-                         multiplier >= 10 ? '#3b82f6' : '#9ca3af'
-        ctx.fillStyle = textColor
-        ctx.font = 'bold 14px Inter'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        
-        // Text shadow for better visibility
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
-        ctx.shadowBlur = 2
-        ctx.fillText(`${multiplier}x`, x + zoneWidth / 2, y + 35)
-        ctx.shadowBlur = 0
-      })
+              // Draw enhanced multiplier zones - blue and white theme
+        const zoneWidth = canvas.width / MULTIPLIERS.length
+        MULTIPLIERS.forEach((multiplier, index) => {
+          const x = index * zoneWidth
+          const y = canvas.height - 70
+          
+          // Zone gradient background - blue/gray/white only
+          const zoneGradient = ctx.createLinearGradient(x, y, x, y + 70)
+          if (multiplier >= 100) {
+            // High multipliers - bright blue
+            zoneGradient.addColorStop(0, 'rgba(14, 165, 233, 0.4)')
+            zoneGradient.addColorStop(1, 'rgba(14, 165, 233, 0.7)')
+          } else if (multiplier >= 10) {
+            // Medium multipliers - medium blue
+            zoneGradient.addColorStop(0, 'rgba(14, 165, 233, 0.2)')
+            zoneGradient.addColorStop(1, 'rgba(14, 165, 233, 0.4)')
+          } else {
+            // Low multipliers - dark gray
+            zoneGradient.addColorStop(0, 'rgba(71, 85, 105, 0.3)')
+            zoneGradient.addColorStop(1, 'rgba(71, 85, 105, 0.5)')
+          }
+          
+          ctx.fillStyle = zoneGradient
+          ctx.fillRect(x, y, zoneWidth, 70)
+          
+          // Zone border - blue or white
+          ctx.strokeStyle = multiplier >= 10 ? '#0ea5e9' : '#ffffff'
+          ctx.lineWidth = 2
+          ctx.strokeRect(x, y, zoneWidth, 70)
+          
+          // Multiplier text with better styling - blue or white
+          const textColor = multiplier >= 10 ? '#0ea5e9' : '#ffffff'
+          ctx.fillStyle = textColor
+          ctx.font = 'bold 14px Inter'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          
+          // Text shadow for better visibility
+          ctx.shadowColor = 'rgba(15, 23, 42, 0.8)'
+          ctx.shadowBlur = 2
+          ctx.fillText(`${multiplier}x`, x + zoneWidth / 2, y + 35)
+          ctx.shadowBlur = 0
+        })
 
       // Update and draw balls with enhanced physics
       setBalls(prevBalls => {
@@ -247,64 +249,65 @@ export function PlinkoPage() {
         return updatedBalls
       })
 
-      // Draw enhanced balls with glow and trails
-      balls.forEach(ball => {
-        // Draw enhanced trail with gradient
-        if (ball.trail.length > 1) {
-          ctx.strokeStyle = '#f59e0b'
-          ctx.lineWidth = 3
-          ctx.lineCap = 'round'
-          ctx.lineJoin = 'round'
+              // Draw enhanced balls with glow and trails - blue and white theme
+        balls.forEach(ball => {
+          // Draw enhanced trail with gradient - blue trail
+          if (ball.trail.length > 1) {
+            ctx.strokeStyle = '#0ea5e9'
+            ctx.lineWidth = 3
+            ctx.lineCap = 'round'
+            ctx.lineJoin = 'round'
+            
+            ctx.beginPath()
+            ball.trail.forEach((point, index) => {
+              const opacity = index / ball.trail.length
+              ctx.globalAlpha = opacity * 0.6
+              
+              if (index === 0) {
+                ctx.moveTo(point.x, point.y)
+              } else {
+                ctx.lineTo(point.x, point.y)
+              }
+            })
+            ctx.stroke()
+            ctx.globalAlpha = 1
+          }
+
+          // Draw ball with enhanced glow effect - blue and white
+          ctx.shadowColor = '#0ea5e9'
+          ctx.shadowBlur = 15
+          
+          // Ball gradient - blue and white
+          const ballGradient = ctx.createRadialGradient(
+            ball.x - ball.radius * 0.3, 
+            ball.y - ball.radius * 0.3, 
+            0, 
+            ball.x, 
+            ball.y, 
+            ball.radius * 1.5
+          )
+          ballGradient.addColorStop(0, '#ffffff')
+          ballGradient.addColorStop(0.3, '#38bdf8')
+          ballGradient.addColorStop(0.7, '#0ea5e9')
+          ballGradient.addColorStop(1, '#0284c7')
           
           ctx.beginPath()
-          ball.trail.forEach((point, index) => {
-            const opacity = index / ball.trail.length
-            ctx.globalAlpha = opacity * 0.6
-            
-            if (index === 0) {
-              ctx.moveTo(point.x, point.y)
-            } else {
-              ctx.lineTo(point.x, point.y)
-            }
-          })
+          ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2)
+          ctx.fillStyle = ballGradient
+          ctx.fill()
+          
+          // Ball border
+          ctx.shadowBlur = 0
+          ctx.strokeStyle = '#ffffff'
+          ctx.lineWidth = 2
           ctx.stroke()
-          ctx.globalAlpha = 1
-        }
-
-        // Draw ball with enhanced glow effect
-        ctx.shadowColor = '#f59e0b'
-        ctx.shadowBlur = 15
-        
-        // Ball gradient
-        const ballGradient = ctx.createRadialGradient(
-          ball.x - ball.radius * 0.3, 
-          ball.y - ball.radius * 0.3, 
-          0, 
-          ball.x, 
-          ball.y, 
-          ball.radius * 1.5
-        )
-        ballGradient.addColorStop(0, '#fbbf24')
-        ballGradient.addColorStop(0.6, '#f59e0b')
-        ballGradient.addColorStop(1, '#d97706')
-        
-        ctx.beginPath()
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2)
-        ctx.fillStyle = ballGradient
-        ctx.fill()
-        
-        // Ball border
-        ctx.shadowBlur = 0
-        ctx.strokeStyle = '#ffffff'
-        ctx.lineWidth = 2
-        ctx.stroke()
-        
-        // Ball highlight
-        ctx.beginPath()
-        ctx.arc(ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.3, 0, Math.PI * 2)
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
-        ctx.fill()
-      })
+          
+          // Ball highlight
+          ctx.beginPath()
+          ctx.arc(ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.3, 0, Math.PI * 2)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'
+          ctx.fill()
+        })
 
       animationFrameRef.current = requestAnimationFrame(animate)
     }
