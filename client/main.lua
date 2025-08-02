@@ -53,6 +53,13 @@ function openCasinoApp()
     })
     
     print("^2[Casino] Casino app opened^0")
+    
+    -- Backup initialization - trigger server after a short delay
+    CreateThread(function()
+        Wait(1500) -- Wait 1.5 seconds for React to load
+        print("^3[Casino] Triggering backup server initialization^0")
+        TriggerServerEvent("casino:initializeApp")
+    end)
 end
 
 function closeCasinoApp()
@@ -266,6 +273,9 @@ end, false)
 exports('openApp', function(source)
     print("^2[Casino] openApp export called by fd_laptop^0")
     openCasinoApp()
+    
+    -- Also trigger server initialization immediately
+    TriggerServerEvent("casino:initializeApp")
 end)
 
 print("^2[Casino] Client initialized successfully!^0")

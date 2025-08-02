@@ -39,6 +39,22 @@ function App() {
         }
       } catch (error) {
         console.log('App initialization error:', error)
+        // Emergency fallback - force initialization after 3 seconds if nothing happens
+        setTimeout(() => {
+          if (!useAppStore.getState().isInitialized) {
+            console.log('Emergency initialization - forcing app to load...')
+            useAppStore.getState().initialize({
+              config: {
+                casinoName: "Premium Casino",
+                minBets: { slots: 20, plinko: 10, mines: 10, aviator: 10 },
+                maxBets: { slots: 10000, plinko: 5000, mines: 5000, aviator: 50000 },
+                slotMachines: []
+              },
+              user: null,
+              events: {}
+            })
+          }
+        }, 3000)
       }
     }
     
@@ -55,6 +71,18 @@ function App() {
             <Loader size="xl" color="blue" />
             <Text mt="md" size="lg" c="white">
               Loading Casino...
+            </Text>
+            <Text mt="sm" size="sm" c="gray">
+              Debug: isInitialized = {isInitialized.toString()}
+            </Text>
+            <Text mt="sm" size="sm" c="gray">
+              Config: {config ? 'Present' : 'Missing'}
+            </Text>
+            <Text mt="sm" size="sm" c="gray">
+              User: {user ? 'Present' : 'Missing'}
+            </Text>
+            <Text mt="sm" size="sm" c="yellow">
+              Check F8 console for debug messages
             </Text>
           </div>
         </Center>
