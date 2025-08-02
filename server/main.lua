@@ -381,12 +381,14 @@ function openApp(source)
     }
     
     -- Send as initializeApp type (React listens for this)
-    TriggerClientEvent(Utils.Events.UPDATE_UI, source, {
+    local initMessage = {
         action = "initializeApp",
         config = initData.config,
         user = initData.user,
         events = initData.events
-    })
+    }
+    print("^3[Casino] Sending initializeApp message: " .. json.encode(initMessage) .. "^0")
+    TriggerClientEvent(Utils.Events.UPDATE_UI, source, initMessage)
     
     -- Check if user exists and send appropriate data
     local user = getUserByCitizenId(citizenid)
@@ -394,7 +396,7 @@ function openApp(source)
     if user then
         -- User exists, create session and send login data
         local sessionToken = createSession(user.id, citizenid)
-        TriggerClientEvent(Utils.Events.UPDATE_UI, source, { 
+        local loginMessage = { 
             action = "login_success",
             user = {
                 id = user.id,
@@ -402,10 +404,14 @@ function openApp(source)
                 balance = user.balance,
                 sessionToken = sessionToken
             }
-        })
+        }
+        print("^3[Casino] Sending login_success message: " .. json.encode(loginMessage) .. "^0")
+        TriggerClientEvent(Utils.Events.UPDATE_UI, source, loginMessage)
     else
         -- New user, show auth page
-        TriggerClientEvent(Utils.Events.UPDATE_UI, source, { action = "show_auth" })
+        local authMessage = { action = "show_auth" }
+        print("^3[Casino] Sending show_auth message: " .. json.encode(authMessage) .. "^0")
+        TriggerClientEvent(Utils.Events.UPDATE_UI, source, authMessage)
     end
 end
 

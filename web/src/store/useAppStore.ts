@@ -97,6 +97,16 @@ export const useAppStore = create<AppStore>((set, get) => ({
     console.log('Initialize called with data:', data)
     console.log('Config received:', data.config)
     console.log('User received:', data.user)
+    
+    // Send debug info to client
+    sendNUIMessage('debugMessage', {
+      type: 'initializeCalled',
+      data: data,
+      hasConfig: !!data.config,
+      hasUser: !!data.user,
+      timestamp: Date.now()
+    })
+    
     set({
       config: data.config,
       user: data.user,
@@ -108,6 +118,18 @@ export const useAppStore = create<AppStore>((set, get) => ({
       hasConfig: !!data.config, 
       hasUser: !!data.user,
       currentPage: data.user ? 'lobby' : 'auth'
+    })
+    
+    // Send final state to client
+    sendNUIMessage('debugMessage', {
+      type: 'initializeComplete',
+      state: {
+        isInitialized: true,
+        hasConfig: !!data.config,
+        hasUser: !!data.user,
+        currentPage: data.user ? 'lobby' : 'auth'
+      },
+      timestamp: Date.now()
     })
   },
   
@@ -262,6 +284,13 @@ export const useAppStore = create<AppStore>((set, get) => ({
 if (typeof window !== 'undefined') {
   window.addEventListener('message', (event) => {
     console.log('Raw NUI message received:', event.data)
+    
+    // Send debug info to client
+    sendNUIMessage('debugMessage', {
+      type: 'messageReceived',
+      eventData: event.data,
+      timestamp: Date.now()
+    })
     
     if (!event.data || typeof event.data !== 'object') {
       console.log('Invalid NUI message format:', event.data)

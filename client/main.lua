@@ -16,12 +16,15 @@ end)
 -- Function to handle UI updates
 local function handleUIUpdate(data)
     print("^3[Casino] UPDATE_UI received with action: " .. (data.action or "no action") .. "^0")
+    print("^3[Casino] Full data received: " .. json.encode(data) .. "^0")
     
     -- Always send to NUI - React app will handle appropriately
-    SendNUIMessage({
+    local message = {
         type = "updateUI",
         data = data
-    })
+    }
+    print("^3[Casino] Sending to NUI: " .. json.encode(message) .. "^0")
+    SendNUIMessage(message)
     
     -- Store important data for when app reopens
     if data.action == "login_success" then
@@ -95,6 +98,11 @@ end)
 RegisterNUICallback("appLoaded", function(data, cb)
     print("^2[Casino] App loaded callback received from React^0")
     TriggerServerEvent("casino:initializeApp")
+    cb("ok")
+end)
+
+RegisterNUICallback("debugMessage", function(data, cb)
+    print("^3[Casino] DEBUG from React: " .. json.encode(data) .. "^0")
     cb("ok")
 end)
 
