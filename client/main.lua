@@ -4,32 +4,14 @@
 local isAppOpen = false
 local nuiData = {}
 
--- Register with fd_laptop
-CreateThread(function()
-    Wait(1000) -- Wait for fd_laptop to initialize
-    
-    -- Register casino app with fd_laptop
-    local success = pcall(function()
-        exports["fd_laptop"]:RegisterApp("casino", {
-            name = Config.CasinoName,
-            icon = "fas fa-dice",
-            category = "entertainment",
-            description = "Premium Online Casino",
-            version = "1.0.0"
-        })
-    end)
-    
-    if success then
-        print("^2[Casino] Successfully registered with fd_laptop^0")
-    else
-        print("^1[Casino] Failed to register with fd_laptop - is fd_laptop running?^0")
-    end
-end)
+-- Register with fd_laptop (moved to server-side as per fd_laptop docs)
 
 -- Event Handlers from Server
 RegisterNetEvent(Utils.Events.OPEN_APP, function()
     openCasinoApp()
 end)
+
+-- App initialization is now handled by React component
 
 RegisterNetEvent(Utils.Events.UPDATE_UI, function(data)
     if isAppOpen then
@@ -55,18 +37,15 @@ function openCasinoApp()
     
     isAppOpen = true
     
-    -- Set NUI focus
-    SetNuiFocus(true, true)
-    
-    -- Send initial data to UI
+    -- fd_laptop handles NUI focus, we just send initial data
     SendNUIMessage({
         type = "openApp",
         data = {
             config = {
-                casinoName = Config.CasinoName,
-                minBets = Config.MinBets,
-                maxBets = Config.MaxBets,
-                slotMachines = Config.SlotMachines
+                casinoName = Config.CasinoName or "Premium Casino",
+                minBets = Config.MinBets or { slots = 20, plinko = 10, mines = 10, aviator = 10 },
+                maxBets = Config.MaxBets or { slots = 10000, plinko = 5000, mines = 5000, aviator = 50000 },
+                slotMachines = Config.SlotMachines or {}
             },
             user = nuiData.user,
             events = Utils.Events
@@ -81,10 +60,7 @@ function closeCasinoApp()
     
     isAppOpen = false
     
-    -- Remove NUI focus
-    SetNuiFocus(false, false)
-    
-    -- Send close message to UI
+    -- fd_laptop handles NUI focus, we just send close message
     SendNUIMessage({
         type = "closeApp"
     })
@@ -95,6 +71,12 @@ end
 -- NUI Callbacks
 RegisterNUICallback("closeApp", function(data, cb)
     closeCasinoApp()
+    cb("ok")
+end)
+
+-- Initialize when app is accessed through fd_laptop
+RegisterNUICallback("appLoaded", function(data, cb)
+    TriggerServerEvent("casino:initializeApp")
     cb("ok")
 end)
 

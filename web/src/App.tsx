@@ -18,8 +18,21 @@ function App() {
     currentPage, 
     isLoading, 
     user, 
-    config 
+    config,
+    sendNUIMessage
   } = useAppStore()
+
+  // Initialize app when component mounts (for fd_laptop)
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        await sendNUIMessage('appLoaded')
+      } catch (error) {
+        console.log('App initialization:', error)
+      }
+    }
+    initializeApp()
+  }, [])
 
   // Show loading screen until initialized
   if (!isInitialized) {

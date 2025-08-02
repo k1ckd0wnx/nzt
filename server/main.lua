@@ -10,6 +10,41 @@ local CasinoServer = {
     lastCleanup = 0
 }
 
+-- Register with fd_laptop
+CreateThread(function()
+    while GetResourceState("fd_laptop") ~= "started" do
+        Wait(500)
+    end
+
+    local added, errorMessage = exports.fd_laptop:addCustomApp({
+        id = "casino",
+        name = "Premium Casino",
+        isDefaultApp = true,
+        needsUpdate = false,
+        icon = 'dice.svg',
+        ui = ("https://cfx-nui-%s/web/dist/index.html"):format(GetCurrentResourceName()),
+        keepAlive = true,
+        ignoreInternalLoading = true,
+        windowActions = {
+            isResizable = false,
+            isMaximizable = false,
+            isClosable = true,
+            isMinimizable = true,
+            isDraggable = false
+        },
+        windowDefaultStates = {
+            isMaximized = true,
+            isMinimized = false
+        },
+    })
+
+    if added then
+        print("^2[Casino] Successfully registered with fd_laptop^0")
+    else
+        print("^1[Casino] Could not add casino app: " .. (errorMessage or "unknown error") .. "^0")
+    end
+end)
+
 -- Initialize database tables on resource start
 CreateThread(function()
     Wait(1000) -- Wait for MySQL to be ready
@@ -285,11 +320,34 @@ function openApp(source)
     local citizenid = player.PlayerData.citizenid
     logAction(source, "app_opened", "system", "info", "Player opened casino app", { citizenid = citizenid })
     
-    -- Trigger client to open the app
-    TriggerClientEvent(Utils.Events.OPEN_APP, source)
+    -- With fd_laptop, the app opening is handled by the laptop itself
+    -- We just need to initialize the user data when they access the app
+    local user = getUserByCitizenId(citizenid)
+    
+    if user then
+        -- User exists, create session
+        local sessionToken = createSession(user.id, citizenid)
+        TriggerClientEvent(Utils.Events.UPDATE_UI, source, { 
+            action = "login_success",
+            user = {
+                id = user.id,
+                username = user.username,
+                balance = user.balance,
+                sessionToken = sessionToken
+            }
+        })
+    else
+        -- New user, show auth page
+        TriggerClientEvent(Utils.Events.UPDATE_UI, source, { action = "show_auth" })
+    end
 end
 
 -- Event Handlers
+RegisterNetEvent("casino:initializeApp", function()
+    local source = source
+    openApp(source)
+end)
+
 RegisterNetEvent(Utils.Events.REGISTER, function(username, email, password)
     local source = source
     

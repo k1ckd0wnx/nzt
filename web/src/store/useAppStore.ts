@@ -226,10 +226,5 @@ if (typeof window !== 'undefined') {
     }
   })
   
-  // Keyboard event listener for ESC key
-  window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      useAppStore.getState().sendNUIMessage('closeApp')
-    }
-  })
+  // ESC key handling is managed by fd_laptop
 }
