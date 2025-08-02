@@ -20,13 +20,16 @@ CreateThread(function()
     Wait(2000)
 
     -- Try different icon paths - fd_laptop might be picky about icon paths
+    local resourceName = GetCurrentResourceName()
     local iconPaths = {
-        ("nui://%s/assets/icon.svg"):format(GetCurrentResourceName()),
-        ("nui://%s/dice.svg"):format(GetCurrentResourceName()),
         "dice.svg",
         "assets/icon.svg",
-        ("https://cfx-nui-%s/dice.svg"):format(GetCurrentResourceName()),
-        ("https://cfx-nui-%s/assets/icon.svg"):format(GetCurrentResourceName())
+        ("nui://%s/dice.svg"):format(resourceName),
+        ("nui://%s/assets/icon.svg"):format(resourceName),
+        ("https://cfx-nui-%s/dice.svg"):format(resourceName),
+        ("https://cfx-nui-%s/assets/icon.svg"):format(resourceName),
+        "",  -- Try no icon (some fd_laptop versions don't like broken icons)
+        nil  -- Try nil icon
     }
     
     local success, result = false, nil

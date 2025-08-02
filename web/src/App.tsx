@@ -37,12 +37,14 @@ function App() {
           console.log('Not in NUI context - casino app should only run inside fd_laptop')
           // Don't initialize outside of FiveM/fd_laptop
         }
-      } catch (error) {
-        console.log('App initialization error:', error)
-        // Emergency fallback - force initialization after 3 seconds if nothing happens
+              } catch (error) {
+          console.log('App initialization error:', error)
+        }
+        
+        // Emergency fallback - force initialization after 2 seconds if nothing happens
         setTimeout(() => {
           if (!useAppStore.getState().isInitialized) {
-            console.log('Emergency initialization - forcing app to load...')
+            console.log('Emergency initialization - forcing app to load with default config...')
             useAppStore.getState().initialize({
               config: {
                 casinoName: "Premium Casino",
@@ -54,9 +56,8 @@ function App() {
               events: {}
             })
           }
-        }, 3000)
+        }, 2000)
       }
-    }
     
     // Small delay to ensure context is ready
     setTimeout(initializeApp, 1000)

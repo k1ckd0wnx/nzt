@@ -756,18 +756,26 @@ CreateThread(function()
             Wait(5000) -- Wait 5 seconds between rounds
             GameEngine.Aviator.startRound()
             
-            -- Broadcast round start
-            TriggerClientEvent(Utils.Events.UPDATE_UI, -1, {
-                action = "aviator_round_start"
-            })
+            -- Only broadcast to players with active casino sessions
+            for sessionToken, session in pairs(CasinoServer.activeSessions) do
+                if session.source then
+                    TriggerClientEvent(Utils.Events.UPDATE_UI, session.source, {
+                        action = "aviator_round_start"
+                    })
+                end
+            end
         else
             local result = GameEngine.Aviator.updateRound()
             
-            -- Broadcast current state
-            TriggerClientEvent(Utils.Events.UPDATE_UI, -1, {
-                action = "aviator_update",
-                state = result
-            })
+            -- Only broadcast to players with active casino sessions
+            for sessionToken, session in pairs(CasinoServer.activeSessions) do
+                if session.source then
+                    TriggerClientEvent(Utils.Events.UPDATE_UI, session.source, {
+                        action = "aviator_update",
+                        state = result
+                    })
+                end
+            end
             
             if result.crashed then
                 -- Process all losing bets
@@ -782,11 +790,15 @@ CreateThread(function()
                     end
                 end
                 
-                -- Broadcast crash
-                TriggerClientEvent(Utils.Events.UPDATE_UI, -1, {
-                    action = "aviator_crashed",
-                    crashMultiplier = result.crashMultiplier
-                })
+                -- Broadcast crash to active casino players only
+                for sessionToken, session in pairs(CasinoServer.activeSessions) do
+                    if session.source then
+                        TriggerClientEvent(Utils.Events.UPDATE_UI, session.source, {
+                            action = "aviator_crashed",
+                            crashMultiplier = result.crashMultiplier
+                        })
+                    end
+                end
             end
         end
         
