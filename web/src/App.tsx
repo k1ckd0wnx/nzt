@@ -1,6 +1,7 @@
 import { useEffect, memo, lazy, Suspense } from 'react'
 import { Container, LoadingOverlay, Center, Text, Loader } from '@mantine/core'
 import { useAppStore } from '@/store/useAppStore'
+import { useLocale } from '@/hooks/useLocale'
 import { Navigation } from '@/components/Navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -23,6 +24,8 @@ function App() {
     config,
     sendNUIMessage
   } = useAppStore()
+  
+  const { updateServerLocale, isInitialized: localeInitialized } = useLocale()
 
   // Initialize app when component mounts (for fd_laptop)
   useEffect(() => {
@@ -98,8 +101,15 @@ function App() {
     
   }, [])
 
-  // Show minimal loading screen
-  if (!isInitialized) {
+  // Update locale when config is received
+  useEffect(() => {
+    if (config?.locale) {
+      updateServerLocale(config.locale)
+    }
+  }, [config?.locale, updateServerLocale])
+
+  // Show minimal loading screen (wait for both app and locale initialization)
+  if (!isInitialized || !localeInitialized) {
     return (
       <div className="casino-app">
         <Center h="100vh">

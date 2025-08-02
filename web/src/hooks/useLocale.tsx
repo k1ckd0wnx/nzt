@@ -175,6 +175,8 @@ interface LocaleContextType {
   locale: LocaleCode
   localeData: LocaleData
   setLocale: (locale: LocaleCode) => void
+  updateServerLocale: (serverLocale?: string) => void
+  isInitialized: boolean
   t: (key: string, fallback?: string) => string
 }
 
@@ -184,7 +186,16 @@ const LocaleContext = createContext<LocaleContextType | null>(null)
 export function useLocale() {
   const context = useContext(LocaleContext)
   if (!context) {
-    throw new Error('useLocale must be used within a LocaleProvider')
+    // Return fallback context instead of throwing error
+    console.warn('useLocale used outside LocaleProvider, using fallback')
+    return {
+      locale: 'en' as LocaleCode,
+      localeData: DEFAULT_LOCALE,
+      setLocale: () => {},
+      updateServerLocale: () => {},
+      isInitialized: true,
+      t: (key: string, fallback?: string) => fallback || key
+    }
   }
   return context
 }
@@ -201,6 +212,7 @@ export function LocaleProvider({ children, initialLocale = 'en', serverLocale }:
   const [locale, setLocaleState] = useState<LocaleCode>(initialLocale)
   const [localeData, setLocaleData] = useState<LocaleData>(DEFAULT_LOCALE)
   const [configReceived, setConfigReceived] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   // Function to load locale data
   const loadLocaleData = async (localeCode: LocaleCode) => {
@@ -225,6 +237,8 @@ export function LocaleProvider({ children, initialLocale = 'en', serverLocale }:
     } catch (error) {
       console.warn(`Failed to load locale ${localeCode}, using default:`, error)
       setLocaleData(DEFAULT_LOCALE)
+    } finally {
+      setIsInitialized(true)
     }
   }
 
@@ -236,66 +250,77 @@ export function LocaleProvider({ children, initialLocale = 'en', serverLocale }:
     localStorage.setItem('casino-locale', newLocale)
   }
 
-  // Function to handle server locale configuration
-  const handleServerLocale = (serverLoc?: string) => {
-    if (serverLoc && serverLoc in AVAILABLE_LOCALES && !configReceived) {
-      console.log(`Received server locale: ${serverLoc}`)
-      const savedLocale = localStorage.getItem('casino-locale') as LocaleCode
-      
-      // Use saved locale if exists, otherwise use server locale
-      const targetLocale = (savedLocale && savedLocale in AVAILABLE_LOCALES) ? savedLocale : serverLoc as LocaleCode
-      
-      setLocaleState(targetLocale)
-      loadLocaleData(targetLocale)
-      setConfigReceived(true)
-    }
-  }
 
-  // Translation function
+
+  // Translation function with safety checks
   const t = (key: string, fallback?: string): string => {
-    const keys = key.split('.')
-    let value: any = localeData
-
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k]
-      } else {
-        // Debug: log when a key is not found
-        if (locale !== 'en') {
-          console.log(`Translation key '${key}' not found in locale '${locale}', using fallback`)
-        }
+    try {
+      if (!localeData || !key) {
         return fallback || key
       }
-    }
 
-    return typeof value === 'string' ? value : (fallback || key)
+      const keys = key.split('.')
+      let value: any = localeData
+
+      for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+          value = value[k]
+        } else {
+          // Debug: log when a key is not found
+          if (locale !== 'en' && isInitialized) {
+            console.log(`Translation key '${key}' not found in locale '${locale}', using fallback`)
+          }
+          return fallback || key
+        }
+      }
+
+      return typeof value === 'string' ? value : (fallback || key)
+    } catch (error) {
+      console.warn(`Translation error for key '${key}':`, error)
+      return fallback || key
+    }
   }
 
-  // Initialize locale from localStorage or server config
+  // Initialize locale from localStorage
   useEffect(() => {
-    if (serverLocale) {
-      handleServerLocale(serverLocale)
-    } else {
+    const initializeLocale = async () => {
       const savedLocale = localStorage.getItem('casino-locale') as LocaleCode
-      if (savedLocale && savedLocale in AVAILABLE_LOCALES) {
-        setLocale(savedLocale)
-      } else {
-        loadLocaleData(locale)
+      let targetLocale: LocaleCode = 'en'
+      
+      if (serverLocale && serverLocale in AVAILABLE_LOCALES) {
+        // Use server locale if no saved preference
+        targetLocale = (savedLocale && savedLocale in AVAILABLE_LOCALES) ? savedLocale : serverLocale as LocaleCode
+      } else if (savedLocale && savedLocale in AVAILABLE_LOCALES) {
+        // Use saved preference
+        targetLocale = savedLocale
       }
+      
+      console.log(`Initializing locale: ${targetLocale}`)
+      setLocaleState(targetLocale)
+      await loadLocaleData(targetLocale)
     }
+    
+    initializeLocale()
   }, [serverLocale])
 
-  // Watch for server locale changes
-  useEffect(() => {
-    if (serverLocale && configReceived) {
-      handleServerLocale(serverLocale)
+  // Dynamic server locale handler function that can be called from outside
+  const updateServerLocale = (newServerLocale?: string) => {
+    if (newServerLocale && newServerLocale in AVAILABLE_LOCALES) {
+      const savedLocale = localStorage.getItem('casino-locale') as LocaleCode
+      const targetLocale = (savedLocale && savedLocale in AVAILABLE_LOCALES) ? savedLocale : newServerLocale as LocaleCode
+      
+      console.log(`Updating to server locale: ${newServerLocale}, using: ${targetLocale}`)
+      setLocaleState(targetLocale)
+      loadLocaleData(targetLocale)
     }
-  }, [serverLocale, configReceived])
+  }
 
   const contextValue: LocaleContextType = {
     locale,
     localeData,
     setLocale,
+    updateServerLocale,
+    isInitialized,
     t
   }
 
