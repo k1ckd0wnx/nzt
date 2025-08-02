@@ -37,15 +37,15 @@ function openCasinoApp()
     
     isAppOpen = true
     
-    -- fd_laptop handles NUI focus, we just send initial data
+    -- Send initial config to UI immediately when app opens
     SendNUIMessage({
-        type = "openApp",
+        type = "initializeApp",
         data = {
             config = {
-                casinoName = Config.CasinoName or "Premium Casino",
-                minBets = Config.MinBets or { slots = 20, plinko = 10, mines = 10, aviator = 10 },
-                maxBets = Config.MaxBets or { slots = 10000, plinko = 5000, mines = 5000, aviator = 50000 },
-                slotMachines = Config.SlotMachines or {}
+                casinoName = Config and Config.CasinoName or "Premium Casino",
+                minBets = Config and Config.MinBets or { slots = 20, plinko = 10, mines = 10, aviator = 10 },
+                maxBets = Config and Config.MaxBets or { slots = 10000, plinko = 5000, mines = 5000, aviator = 50000 },
+                slotMachines = Config and Config.SlotMachines or {}
             },
             user = nuiData.user,
             events = Utils.Events

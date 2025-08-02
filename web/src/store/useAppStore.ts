@@ -108,6 +108,15 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const { user } = get()
     
     switch (update.action) {
+      case 'initialize_app':
+        console.log('Initializing app with server config:', update.config)
+        set({ 
+          config: update.config,
+          isInitialized: true,
+          currentPage: 'auth' // Default to auth page until user data is received
+        })
+        break
+        
       case 'login_success':
         set({ 
           user: update.user,
@@ -220,10 +229,13 @@ if (typeof window !== 'undefined') {
     
     switch (type) {
       case 'openApp':
+      case 'initializeApp':
+        console.log('Initializing app with data:', data)
         useAppStore.getState().initialize(data)
         break
         
       case 'updateUI':
+        console.log('Updating UI with data:', data)
         useAppStore.getState().handleUIUpdate(data)
         break
         

@@ -326,12 +326,22 @@ function openApp(source)
     local citizenid = player.PlayerData.citizenid
     logAction(source, "app_opened", "system", "info", "Player opened casino app", { citizenid = citizenid })
     
-    -- With fd_laptop, the app opening is handled by the laptop itself
-    -- We just need to initialize the user data when they access the app
+    -- Send initial app configuration first
+    TriggerClientEvent(Utils.Events.UPDATE_UI, source, {
+        action = "initialize_app",
+        config = {
+            casinoName = Config.CasinoName,
+            minBets = Config.MinBets,
+            maxBets = Config.MaxBets,
+            slotMachines = Config.SlotMachines or {}
+        }
+    })
+    
+    -- Check if user exists and send appropriate data
     local user = getUserByCitizenId(citizenid)
     
     if user then
-        -- User exists, create session
+        -- User exists, create session and send login data
         local sessionToken = createSession(user.id, citizenid)
         TriggerClientEvent(Utils.Events.UPDATE_UI, source, { 
             action = "login_success",
