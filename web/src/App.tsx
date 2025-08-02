@@ -41,10 +41,10 @@ function App() {
           console.log('App initialization error:', error)
         }
         
-        // Emergency fallback - force initialization after 2 seconds if nothing happens
+        // Emergency fallback - force initialization only if no server response after 1 second
         setTimeout(() => {
           if (!useAppStore.getState().isInitialized) {
-            console.log('Emergency initialization - forcing app to load with default config...')
+            console.log('Emergency initialization - forcing app to load quickly...')
             useAppStore.getState().initialize({
               config: {
                 casinoName: "Premium Casino",
@@ -56,7 +56,7 @@ function App() {
               events: {}
             })
           }
-        }, 2000)
+        }, 1000)
       }
     
     // Small delay to ensure context is ready
@@ -77,10 +77,13 @@ function App() {
               Debug: isInitialized = {isInitialized.toString()}
             </Text>
             <Text mt="sm" size="sm" c="gray">
-              Config: {config ? 'Present' : 'Missing'}
+              Config: {config ? `Present (${config.casinoName})` : 'Missing'}
             </Text>
             <Text mt="sm" size="sm" c="gray">
-              User: {user ? 'Present' : 'Missing'}
+              User: {user ? `Present (${user.username})` : 'Missing'}
+            </Text>
+            <Text mt="sm" size="sm" c="gray">
+              Current Page: {useAppStore.getState().currentPage}
             </Text>
             <Text mt="sm" size="sm" c="yellow">
               Check F8 console for debug messages

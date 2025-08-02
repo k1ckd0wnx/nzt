@@ -263,7 +263,13 @@ if (typeof window !== 'undefined') {
         
       case 'updateUI':
         console.log('Updating UI with data:', data)
-        useAppStore.getState().handleUIUpdate(data)
+        // Handle special initializeApp action within updateUI
+        if (data.action === 'initializeApp') {
+          console.log('Processing initializeApp from updateUI:', data.data)
+          useAppStore.getState().initialize(data.data)
+        } else {
+          useAppStore.getState().handleUIUpdate(data)
+        }
         break
         
       case 'closeApp':

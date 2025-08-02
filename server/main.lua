@@ -21,13 +21,15 @@ CreateThread(function()
 
     -- Try to register with fd_laptop - try multiple icon paths if needed
     local resourceName = GetCurrentResourceName()
-    local iconPaths = {
-        ("nui://%s/dice.svg"):format(resourceName),
-        ("nui://%s/assets/icon.svg"):format(resourceName),
-        "dice.svg",
-        "assets/icon.svg",
-        ("https://cfx-nui-%s/dice.svg"):format(resourceName),
-    }
+             -- Try simple icon approaches first, then file paths
+         local iconPaths = {
+             "🎲",  -- Unicode dice emoji
+             "🎰",  -- Slot machine emoji  
+             ("nui://%s/dice.svg"):format(resourceName),
+             ("nui://%s/assets/icon.svg"):format(resourceName),
+             "dice.svg",
+             "assets/icon.svg",
+         }
     
     local success, result = false, nil
     
@@ -363,16 +365,25 @@ function openApp(source)
     local citizenid = player.PlayerData.citizenid
     logAction(source, "app_opened", "system", "info", "Player opened casino app", { citizenid = citizenid })
     
-    -- Send initial app configuration first
+    -- Send initial app configuration first with immediate initialization
     print("^3[Casino] Sending initialize_app to client^0")
-    TriggerClientEvent(Utils.Events.UPDATE_UI, source, {
-        action = "initialize_app",
+    
+    -- Send initialization data that the React app expects
+    local initData = {
         config = {
             casinoName = Config.CasinoName,
             minBets = Config.MinBets,
             maxBets = Config.MaxBets,
             slotMachines = Config.SlotMachines or {}
-        }
+        },
+        user = nil,  -- Will be set below if user exists
+        events = {}
+    }
+    
+    -- Send as initializeApp type (React listens for this)
+    TriggerClientEvent(Utils.Events.UPDATE_UI, source, {
+        action = "initializeApp",
+        data = initData
     })
     
     -- Check if user exists and send appropriate data
